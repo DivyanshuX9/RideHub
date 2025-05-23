@@ -20,7 +20,7 @@ export function RecentRides() {
       const observer = new IntersectionObserver(
         (entries) => {
           if (entries[0].isIntersecting) {
-            staggerElements(Array.from(rideItems), 0.1);
+            Array.from(cardItems).forEach((el) => staggerElements(el, 0.1));
             observer.disconnect();
           }
         },
