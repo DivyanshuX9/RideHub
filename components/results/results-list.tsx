@@ -16,17 +16,18 @@ interface ResultsListProps {
 export function ResultsList({ filter }: ResultsListProps) {
   const resultsRef = useRef<HTMLDivElement>(null);
   const filteredOptions = filterRideOptions(filter);
-  
+
   useEffect(() => {
     const resultsElement = resultsRef.current;
-    
+
     if (resultsElement) {
-      const resultItems = resultsElement.querySelectorAll('.result-item');
-      
-      staggerElements(resultItems, 0.1);
+      const resultItems = Array.from(resultsElement.querySelectorAll('.result-item'));
+      resultItems.forEach((item, index) => {
+        staggerElements(item, index * 0.1); // Apply animation staggered
+      });
     }
   }, [filter]);
-  
+
   const getServiceIcon = (service: string) => {
     switch (service.toLowerCase()) {
       case 'uber':
@@ -42,7 +43,7 @@ export function ResultsList({ filter }: ResultsListProps) {
         return <Car className="h-5 w-5" />;
     }
   };
-  
+
   if (filteredOptions.length === 0) {
     return (
       <Card className="border-dashed">
@@ -53,7 +54,7 @@ export function ResultsList({ filter }: ResultsListProps) {
       </Card>
     );
   }
-  
+
   return (
     <div ref={resultsRef} className="space-y-4">
       <AnimatePresence mode="wait">
@@ -68,8 +69,10 @@ export function ResultsList({ filter }: ResultsListProps) {
               key={option.id}
               className="result-item"
               initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
               whileHover={{ scale: 1.01 }}
-              transition={{ duration: 0.2 }}
             >
               <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
                 <CardContent className="p-0">
@@ -85,19 +88,19 @@ export function ResultsList({ filter }: ResultsListProps) {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="col-span-2 p-4 space-y-4">
                       <div className="flex items-center space-x-4">
                         <div className="flex items-center">
                           <Clock className="h-4 w-4 text-muted-foreground mr-1" />
                           <span className="text-sm">{option.estimatedTime} min</span>
                         </div>
-                        
+
                         <div className="flex items-center">
                           <DollarSign className="h-4 w-4 text-muted-foreground mr-1" />
                           <span className="text-sm">${option.estimatedPrice.toFixed(2)}</span>
                         </div>
-                        
+
                         {option.ecoFriendly && (
                           <Badge variant="outline" className="flex items-center gap-1">
                             <Zap className="h-3 w-3" />
@@ -105,27 +108,27 @@ export function ResultsList({ filter }: ResultsListProps) {
                           </Badge>
                         )}
                       </div>
-                      
+
                       <div className="space-y-1">
                         <div className="text-sm">
                           {option.distance} km total distance
                         </div>
-                        
+
                         {filter === 'fastest' && index === 0 && (
                           <Badge variant="secondary">Fastest Option</Badge>
                         )}
-                        
+
                         {filter === 'cheapest' && index === 0 && (
                           <Badge variant="secondary">Best Value</Badge>
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="bg-card p-4 flex flex-col justify-center items-center md:items-end space-y-2 border-t md:border-t-0 md:border-l border-border">
                       <div className="text-lg font-semibold">
                         ${option.estimatedPrice.toFixed(2)}
                       </div>
-                      
+
                       <Button size="sm">
                         Book Now
                       </Button>
