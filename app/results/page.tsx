@@ -1,13 +1,21 @@
 'use client';
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { FilterBar } from '@/components/results/filter-bar';
 import { MapView } from '@/components/results/map-view';
 import { ResultsList } from '@/components/results/results-list';
-import { FilterBar } from '@/components/results/filter-bar';
+import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
+import { Suspense, useState } from 'react';
 
 export default function ResultsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResultsPageContent />
+    </Suspense>
+  );
+}
+
+function ResultsPageContent() {
   const searchParams = useSearchParams();
   const from = searchParams.get('from') || '';
   const to = searchParams.get('to') || '';
