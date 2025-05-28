@@ -1,9 +1,9 @@
-import './globals.css';
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import { Providers } from './providers';
 import { Navbar } from '@/components/layout/navbar';
 import { cn } from '@/lib/utils';
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { Providers } from './providers';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,8 +23,8 @@ export default function RootLayout({
         inter.className,
         'min-h-screen bg-background antialiased'
       )}>
+        <Navbar />
         <Providers>
-          <Navbar />
           <main>
             {children}
           </main>
