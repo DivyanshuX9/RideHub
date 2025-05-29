@@ -1,13 +1,16 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { OlaLogo } from '@/components/logos/OlaLogo';
+import { RapidoLogo } from '@/components/logos/RapidoLogo';
+import { UberLogo } from '@/components/logos/UberLogo';
 import { Badge } from '@/components/ui/badge';
-import { Zap, Clock, DollarSign, Car, Bus, Train, Bike } from 'lucide-react';
-import { filterRideOptions } from '@/lib/mock-data';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { staggerElements } from '@/lib/animations';
+import { filterRideOptions } from '@/lib/mock-data';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Bus, Car, Clock, DollarSign, Train, Zap } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 
 interface ResultsListProps {
   filter: 'fastest' | 'cheapest' | 'eco';
@@ -31,16 +34,17 @@ export function ResultsList({ filter }: ResultsListProps) {
   const getServiceIcon = (service: string) => {
     switch (service.toLowerCase()) {
       case 'uber':
+        return <UberLogo className="h-10 w-10" />;
       case 'ola':
-        return <Car className="h-5 w-5" />;
-      case 'metro':
-        return <Train className="h-5 w-5" />;
-      case 'bus':
-        return <Bus className="h-5 w-5" />;
+        return <OlaLogo className="h-14 w-14" />;
       case 'rapido':
-        return <Bike className="h-5 w-5" />;
+        return <RapidoLogo className="h-12 w-12" />;
+      case 'metro':
+        return <Train className="h-9 w-9" />;
+      case 'bus':
+        return <Bus className="h-9 w-9" />;
       default:
-        return <Car className="h-5 w-5" />;
+        return <Car className="h-9 w-9"/>;
     }
   };
 
@@ -80,9 +84,9 @@ export function ResultsList({ filter }: ResultsListProps) {
                     <div className="bg-primary/5 p-4 flex items-center justify-center md:border-r border-border">
                       <div className="flex flex-col items-center text-center">
                         {getServiceIcon(option.service)}
-                        <div className="text-sm font-medium mt-2">
+                        {/* <div className="text-sm font-medium mt-2">
                           {option.service}
-                        </div>
+                        </div> */}
                         <div className="text-xs text-muted-foreground">
                           {option.type}
                         </div>

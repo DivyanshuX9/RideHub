@@ -1,6 +1,8 @@
+import AppMain from '@/components/layout/app-main';
 import { Navbar } from '@/components/layout/navbar';
 import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
+import { ThemeProvider } from 'next-themes';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
@@ -23,12 +25,14 @@ export default function RootLayout({
         inter.className,
         'min-h-screen bg-background antialiased'
       )}>
-        <Navbar />
-        <Providers>
-          <main>
-            {children}
-          </main>
-        </Providers>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+          <Navbar />
+          <Providers>
+            <AppMain>
+              {children}
+            </AppMain>
+          </Providers>
+        </ThemeProvider>
       </body>
     </html>
   );

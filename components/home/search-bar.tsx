@@ -1,22 +1,25 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Clock, LocateFixed, Calendar, ArrowRight, Car, Train, Bus, Bike } from 'lucide-react';
+import { OlaLogo } from '@/components/logos/OlaLogo';
+import { RapidoLogo } from '@/components/logos/RapidoLogo';
+import { UberLogo } from '@/components/logos/UberLogo';
 import { Button } from '@/components/ui/button';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { 
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover';
-import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Label } from '@/components/ui/label';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger
+} from '@/components/ui/popover';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { popularLocations, getRideRecommendations } from '@/lib/mock-data';
+import { getRideRecommendations, popularLocations } from '@/lib/mock-data';
 import { RideRecommendation } from '@/types/location';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowRight, Bus, Calendar, Car, Clock, LocateFixed, MapPin, Train } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export function SearchBar() {
   const router = useRouter();
@@ -71,14 +74,15 @@ export function SearchBar() {
   const getServiceIcon = (service: string) => {
     switch (service.toLowerCase()) {
       case 'uber':
+        return <UberLogo className="h-4 w-4" />;
       case 'ola':
-        return <Car className="h-4 w-4" />;
+        return <OlaLogo className="h-4 w-4" />;
+      case 'rapido':
+        return <RapidoLogo className="h-4 w-4" />;
       case 'metro':
         return <Train className="h-4 w-4" />;
       case 'bus':
         return <Bus className="h-4 w-4" />;
-      case 'rapido':
-        return <Bike className="h-4 w-4" />;
       default:
         return <Car className="h-4 w-4" />;
     }

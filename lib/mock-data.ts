@@ -1,6 +1,9 @@
-import { Booking, RideService, RideStatus } from '@/types/booking';
+import { OlaLogo } from '@/components/logos/OlaLogo';
+import { RapidoLogo } from '@/components/logos/RapidoLogo';
+import { UberLogo } from '@/components/logos/UberLogo';
+import { Booking } from '@/types/booking';
 import { Location, RideOption, RideRecommendation } from '@/types/location';
-import { CarFront, Train, Bus, Bike, Zap } from 'lucide-react';
+import { Bike, Bus, Train, Zap } from 'lucide-react';
 
 // Frequently used locations
 export const popularLocations: Location[] = [
@@ -444,14 +447,17 @@ export const paymentMethods = [
 // Helper function to get icon component by name
 export const getIconByName = (iconName: string) => {
   const iconMap: Record<string, React.ElementType> = {
-    'car-front': CarFront,
+    'car-front': UberLogo,
+    'uber': UberLogo,
+    'ola': OlaLogo,
+    'rapido': RapidoLogo,
     'train': Train,
     'bus': Bus,
     'bike': Bike,
     'zap': Zap
   };
   
-  return iconMap[iconName] || CarFront;
+  return iconMap[iconName] || UberLogo;
 };
 
 // Helper function to get bookings by type
