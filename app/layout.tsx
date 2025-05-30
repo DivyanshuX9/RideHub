@@ -1,6 +1,4 @@
-import AppMain from '@/components/layout/app-main';
 import { Navbar } from '@/components/layout/navbar';
-import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { ThemeProvider } from 'next-themes';
 import { Inter } from 'next/font/google';
@@ -21,16 +19,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn(
-        inter.className,
-        'min-h-screen bg-background antialiased'
-      )}>
+      <body className={inter.className + ' min-h-screen bg-background antialiased'}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <Navbar />
           <Providers>
-            <AppMain>
-              {children}
-            </AppMain>
+            {children}
           </Providers>
         </ThemeProvider>
       </body>

@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MapPin, Clock, Calendar, AlertTriangle } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { getBookingsByType, getIconByName } from '@/lib/mock-data';
 import { Booking, BookingType } from '@/types/booking';
+import { AnimatePresence, motion } from 'framer-motion';
+import { AlertTriangle, Calendar, Clock, MapPin } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface BookingsListProps {
   type: BookingType;
@@ -77,12 +77,6 @@ export function BookingsList({ type, onSelectBooking }: BookingsListProps) {
         className="space-y-4"
       >
         {bookings.map((booking, index) => {
-          const ServiceIcon = getIconByName(
-            booking.service === 'uber' || booking.service === 'ola' 
-              ? 'car-front' 
-              : booking.service
-          );
-          
           return (
             <motion.div
               key={booking.id}
@@ -103,7 +97,7 @@ export function BookingsList({ type, onSelectBooking }: BookingsListProps) {
                   <div className="grid grid-cols-1 md:grid-cols-4">
                     <div className="bg-primary/5 p-4 flex items-center justify-center md:border-r border-border">
                       <div className="flex flex-col items-center text-center">
-                        <ServiceIcon className="h-8 w-8 mb-2" />
+                        {getIconByName(booking.service === 'uber' || booking.service === 'ola' ? 'car-front' : booking.service)}
                         <div className="text-sm font-medium capitalize">
                           {booking.service}
                         </div>

@@ -1,10 +1,10 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { X, MapPin, Calendar, Clock, User, Car, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Booking } from '@/types/booking';
 import { getIconByName } from '@/lib/mock-data';
+import { Booking } from '@/types/booking';
+import { motion } from 'framer-motion';
+import { Calendar, Car, Clock, MapPin, Star, User, X } from 'lucide-react';
 
 interface BookingDetailsProps {
   booking: Booking;
@@ -12,12 +12,6 @@ interface BookingDetailsProps {
 }
 
 export function BookingDetails({ booking, onClose }: BookingDetailsProps) {
-  const ServiceIcon = getIconByName(
-    booking.service === 'uber' || booking.service === 'ola' 
-      ? 'car-front' 
-      : booking.service
-  );
-  
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -36,7 +30,7 @@ export function BookingDetails({ booking, onClose }: BookingDetailsProps) {
       >
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center space-x-2">
-            <ServiceIcon className="h-5 w-5" />
+            {getIconByName(booking.service === 'uber' || booking.service === 'ola' ? 'car-front' : booking.service)}
             <h2 className="text-lg font-semibold capitalize">
               {booking.service} {booking.status === 'scheduled' ? 'Booking' : 'Ride'}
             </h2>
@@ -86,7 +80,7 @@ export function BookingDetails({ booking, onClose }: BookingDetailsProps) {
                 <div className="text-sm text-muted-foreground">Ride Info</div>
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2">
-                    <ServiceIcon className="h-5 w-5 text-primary" />
+                    {getIconByName(booking.service === 'uber' || booking.service === 'ola' ? 'car-front' : booking.service)}
                     <span>{booking.distance} km</span>
                   </div>
                   <div className="flex items-center space-x-2">

@@ -83,3 +83,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes shimmer {
+  100% {
+    background-position: right center;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite linear;
+}

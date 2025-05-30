@@ -1,35 +1,18 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { initHeroAnimation } from '@/lib/animations';
 
 export function HeroSection() {
-  const backgroundRef = useRef<HTMLDivElement>(null);
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  const subheadingRef = useRef<HTMLParagraphElement>(null);
-
-  useEffect(() => {
-    const timeline = initHeroAnimation(backgroundRef, headingRef, subheadingRef);
-    
-    return () => {
-      timeline.kill();
-    };
-  }, []);
-
   return (
     <section className="relative h-[70vh] min-h-[600px] overflow-hidden">
       {/* Background with parallax effect */}
       <div 
-        ref={backgroundRef}
         className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40 z-0"
       >
-        <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/3052361/pexels-photo-3052361.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2')] bg-cover bg-center opacity-20 mix-blend-overlay" />
-        
+        <div className="absolute inset-0 bg-[url('/images/pexels-photo-city.jpeg')] bg-cover bg-center opacity-20 mix-blend-overlay" />
         {/* City pattern overlay */}
-        <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/1563256/pexels-photo-1563256.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2')] bg-cover bg-center opacity-10" />
+        <div className="absolute inset-0 bg-[url('/images/pexels-photo-street.jpeg')] bg-cover bg-center opacity-10" />
       </div>
-      
       {/* Content */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 md:px-6 lg:px-8">
         <motion.div
@@ -38,21 +21,23 @@ export function HeroSection() {
           transition={{ delay: 0.2, duration: 0.8 }}
           className="max-w-4xl mx-auto"
         >
-          <h1 
-            ref={headingRef}
+          <motion.h1
             className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8, ease: 'easeOut' }}
           >
             One App, All Your Rides
-          </h1>
-          
-          <p 
-            ref={subheadingRef}
+          </motion.h1>
+          <motion.p
             className="text-lg md:text-xl text-muted-foreground mb-8 md:mb-10"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8, ease: 'easeOut' }}
           >
             Compare prices, ETAs, and book rides across all services in seconds.
             Your one-stop solution for seamless urban mobility.
-          </p>
-          
+          </motion.p>
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -75,7 +60,6 @@ export function HeroSection() {
           </motion.div>
         </motion.div>
       </div>
-      
       {/* Wave overlay at bottom */}
       <div className="absolute bottom-0 left-0 right-0">
         <svg

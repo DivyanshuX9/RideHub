@@ -3,7 +3,7 @@ import { RapidoLogo } from '@/components/logos/RapidoLogo';
 import { UberLogo } from '@/components/logos/UberLogo';
 import { Booking } from '@/types/booking';
 import { Location, RideOption, RideRecommendation } from '@/types/location';
-import { Bike, Bus, Train, Zap } from 'lucide-react';
+import { Bike, Bus, Car, Train, Zap } from 'lucide-react';
 
 // Frequently used locations
 export const popularLocations: Location[] = [
@@ -445,19 +445,27 @@ export const paymentMethods = [
 ];
 
 // Helper function to get icon component by name
-export const getIconByName = (iconName: string) => {
-  const iconMap: Record<string, React.ElementType> = {
-    'car-front': UberLogo,
-    'uber': UberLogo,
-    'ola': OlaLogo,
-    'rapido': RapidoLogo,
-    'train': Train,
-    'bus': Bus,
-    'bike': Bike,
-    'zap': Zap
-  };
-  
-  return iconMap[iconName] || UberLogo;
+export const getIconByName = (iconName: string): JSX.Element => {
+  switch (iconName) {
+    case 'uber':
+      return <UberLogo className="h-10 w-10" />;
+    case 'ola':
+      return <OlaLogo className="h-12 w-12" />;
+    case 'rapido':
+      return <RapidoLogo className="h-9 w-9" />;
+    case 'train':
+      return <Train className="h-10 w-10" />;
+    case 'bus':
+      return <Bus className="h-10 w-10" />;
+    case 'car-front':
+      return <Car className="h-8 w-8" />;
+    case 'bike':
+      return <Bike className="h-8 w-8" />;
+    case 'zap':
+      return <Zap className="h-8 w-8" />;
+    default:
+      return <Car className="h-8 w-8" />;
+  }
 };
 
 // Helper function to get bookings by type

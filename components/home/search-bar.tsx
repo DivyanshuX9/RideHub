@@ -9,17 +9,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger
+  Popover,
+  PopoverContent,
+  PopoverTrigger
 } from '@/components/ui/popover';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { getRideRecommendations, popularLocations } from '@/lib/mock-data';
 import { RideRecommendation } from '@/types/location';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Bus, Calendar, Car, Clock, LocateFixed, MapPin, Train } from 'lucide-react';
+import { ArrowRight, Bike, Bus, Calendar, CarFront, Clock, LocateFixed, MapPin, Train, Zap } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 export function SearchBar() {
   const router = useRouter();
@@ -71,20 +71,26 @@ export function SearchBar() {
     }, 500);
   };
 
-  const getServiceIcon = (service: string) => {
-    switch (service.toLowerCase()) {
+  const getIconByName = (iconName: string): JSX.Element => {
+    switch (iconName) {
       case 'uber':
-        return <UberLogo className="h-4 w-4" />;
+        return React.createElement(UberLogo, { className: 'h-10 w-10' });
       case 'ola':
-        return <OlaLogo className="h-4 w-4" />;
+        return React.createElement(OlaLogo, { className: 'h-14 w-14' });
       case 'rapido':
-        return <RapidoLogo className="h-4 w-4" />;
-      case 'metro':
-        return <Train className="h-4 w-4" />;
+        return React.createElement(RapidoLogo, { className: 'h-9 w-9' });
+      case 'train':
+        return React.createElement(Train, { className: 'h-10 w-10' });
       case 'bus':
-        return <Bus className="h-4 w-4" />;
+        return React.createElement(Bus, { className: 'h-10 w-10' });
+      case 'car-front':
+        return React.createElement(CarFront, { className: 'h-8 w-8' });
+      case 'bike':
+        return React.createElement(Bike, { className: 'h-8 w-8' });
+      case 'zap':
+        return React.createElement(Zap, { className: 'h-8 w-8' });
       default:
-        return <Car className="h-4 w-4" />;
+        return React.createElement(CarFront, { className: 'h-8 w-8' });
     }
   };
   
@@ -275,7 +281,7 @@ export function SearchBar() {
                         <CardContent className="p-3">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
-                              {getServiceIcon(rec.service)}
+                              {getIconByName(rec.service)}
                               <div>
                                 <div className="font-medium capitalize">
                                   {rec.service} {rec.type}

@@ -1,11 +1,11 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Car, Bus, Train, Bike, Zap } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { staggerElements } from '@/lib/animations';
+import { motion } from 'framer-motion';
+import { Bike, Bus, Car, Train, Zap } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 
 const rideTypes = [
   {
@@ -80,8 +80,11 @@ export function RideOptions() {
           key={type.name}
           className="card-item"
           initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           whileHover={{ scale: 1.03 }}
+          whileTap={{ zIndex: 10 }}
           transition={{ duration: 0.2 }}
+          style={{ zIndex: 1 }}
         >
           <Card className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-shadow duration-300 h-full">
             <CardContent className="p-6 flex flex-col items-center text-center h-full">

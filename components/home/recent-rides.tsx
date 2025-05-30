@@ -1,12 +1,12 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MapPin, Clock, Calendar } from 'lucide-react';
-import { recentRides, getIconByName } from '@/lib/mock-data';
+import { Card, CardContent } from '@/components/ui/card';
 import { staggerElements } from '@/lib/animations';
+import { getIconByName, recentRides } from '@/lib/mock-data';
+import { motion } from 'framer-motion';
+import { Calendar, Clock, MapPin } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 
 export function RecentRides() {
   const ridesRef = useRef<HTMLDivElement>(null);
@@ -47,10 +47,6 @@ export function RecentRides() {
   return (
     <div ref={ridesRef} className="space-y-4">
       {recentRides.map((ride) => {
-        const ServiceIcon = getIconByName(
-          ride.service === 'uber' || ride.service === 'ola' ? 'car-front' : ride.service
-        );
-
         return (
           <motion.div
             key={ride.id}
@@ -64,7 +60,7 @@ export function RecentRides() {
                 <div className="grid grid-cols-1 md:grid-cols-4">
                   <div className="bg-primary/5 p-4 flex items-center justify-center md:border-r border-border">
                     <div className="flex flex-col items-center text-center">
-                      <ServiceIcon className="h-8 w-8 mb-2" />
+                      {getIconByName(ride.service === 'uber' || ride.service === 'ola' ? 'car-front' : ride.service)}
                       <div className="text-sm font-medium capitalize">{ride.service}</div>
                       <div className="text-xs text-muted-foreground">{ride.distance} km</div>
                     </div>

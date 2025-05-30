@@ -6,45 +6,31 @@ import { UberLogo } from '@/components/logos/UberLogo';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { staggerElements } from '@/lib/animations';
 import { filterRideOptions } from '@/lib/mock-data';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bus, Car, Clock, DollarSign, Train, Zap } from 'lucide-react';
-import { useEffect, useRef } from 'react';
 
 interface ResultsListProps {
   filter: 'fastest' | 'cheapest' | 'eco';
 }
 
 export function ResultsList({ filter }: ResultsListProps) {
-  const resultsRef = useRef<HTMLDivElement>(null);
   const filteredOptions = filterRideOptions(filter);
-
-  useEffect(() => {
-    const resultsElement = resultsRef.current;
-
-    if (resultsElement) {
-      const resultItems = Array.from(resultsElement.querySelectorAll('.result-item'));
-      resultItems.forEach((item, index) => {
-        staggerElements(item, index * 0.1); // Apply animation staggered
-      });
-    }
-  }, [filter]);
 
   const getServiceIcon = (service: string) => {
     switch (service.toLowerCase()) {
       case 'uber':
-        return <UberLogo className="h-10 w-10" />;
+        return <UberLogo className="h-12 w-12" />;
       case 'ola':
-        return <OlaLogo className="h-14 w-14" />;
+        return <OlaLogo className="h-10 w-10" />;
       case 'rapido':
         return <RapidoLogo className="h-12 w-12" />;
       case 'metro':
-        return <Train className="h-9 w-9" />;
+        return <Train className="h-5 w-5" />;
       case 'bus':
-        return <Bus className="h-9 w-9" />;
+        return <Bus className="h-5 w-5" />;
       default:
-        return <Car className="h-9 w-9"/>;
+        return <Car className="h-5 w-5" />;
     }
   };
 
@@ -60,7 +46,7 @@ export function ResultsList({ filter }: ResultsListProps) {
   }
 
   return (
-    <div ref={resultsRef} className="space-y-4">
+    <div className="space-y-4">
       <AnimatePresence mode="wait">
         <motion.div
           key={filter}
@@ -75,7 +61,7 @@ export function ResultsList({ filter }: ResultsListProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.05 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
               whileHover={{ scale: 1.01 }}
             >
               <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
