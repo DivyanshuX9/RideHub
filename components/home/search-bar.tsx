@@ -19,7 +19,7 @@ import { RideRecommendation } from '@/types/location';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Bike, Bus, Calendar, CarFront, Clock, LocateFixed, MapPin, Train, Zap } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export function SearchBar({
   fromValue,
@@ -29,7 +29,8 @@ export function SearchBar({
   date: dateProp,
   setDate: setDateProp,
   time: timeProp,
-  setTime: setTimeProp
+  setTime: setTimeProp,
+  onSearch
 }: {
   fromValue?: string;
   toValue?: string;
@@ -39,6 +40,7 @@ export function SearchBar({
   setDate?: (d: Date) => void;
   time?: string;
   setTime?: (t: string) => void;
+  onSearch?: (from: string, to: string) => void;
 } = {}) {
   const router = useRouter();
   const [from, setFrom] = useState(fromValue || '');
@@ -51,9 +53,17 @@ export function SearchBar({
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [time, setTime] = useState<string>(timeProp || '');
   
+  // Sync local state with props if they change
+  useEffect(() => {
+    if (fromValue !== undefined) setFrom(fromValue);
+  }, [fromValue]);
+  useEffect(() => {
+    if (toValue !== undefined) setTo(toValue);
+  }, [toValue]);
+  
   // Use controlled values if provided
-  const fromVal = fromValue !== undefined ? fromValue : from;
-  const toVal = toValue !== undefined ? toValue : to;
+  const fromVal = from;
+  const toVal = to;
   const rideTypeVal = rideTypeProp !== undefined ? rideTypeProp : rideType;
   const dateVal = dateProp !== undefined ? dateProp : date;
   const timeVal = timeProp !== undefined ? timeProp : time;
@@ -64,6 +74,7 @@ export function SearchBar({
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (fromVal && toVal) {
+      if (onSearch) onSearch(fromVal, toVal);
       router.push(`/results?from=${encodeURIComponent(fromVal)}&to=${encodeURIComponent(toVal)}`);
     }
   };
@@ -146,6 +157,7 @@ export function SearchBar({
                     className="pl-10 pr-10"
                     value={fromVal}
                     onChange={(e) => {
+                      setFrom(e.target.value);
                       handleLocationChange(e.target.value, 'from');
                       setShowFromSuggestions(true);
                     }}
@@ -201,6 +213,7 @@ export function SearchBar({
                     className="pl-10"
                     value={toVal}
                     onChange={(e) => {
+                      setTo(e.target.value);
                       handleLocationChange(e.target.value, 'to');
                       setShowToSuggestions(true);
                     }}

@@ -6,10 +6,11 @@ import { UberLogo } from '@/components/logos/UberLogo';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { filterRideOptions } from '@/lib/mock-data';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bus, Car, Clock, DollarSign, Train, Zap } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ResultsListProps {
   filter: 'fastest' | 'cheapest' | 'eco' | 'public';
@@ -17,19 +18,29 @@ interface ResultsListProps {
 }
 
 export function ResultsList({ filter, categorized = false }: ResultsListProps) {
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    setIsLoading(true);
+    const t = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(t);
+  }, [filter]);
+
+  const [activeCategory, setActiveCategory] = useState(filter);
+
   let filteredOptions = filterRideOptions(filter as any);
   if (filter === 'public') {
     filteredOptions = filterRideOptions('fastest').filter(r => ['bus', 'metro'].includes(r.service.toLowerCase()));
   }
 
-  // Categorize rides
-  const categories = [
-    { key: 'fastest', label: 'Fastest' },
-    { key: 'cheapest', label: 'Cheapest' },
-    { key: 'eco', label: 'Eco' },
-    { key: 'public', label: 'Public' },
-  ];
-  const [activeCategory, setActiveCategory] = useState(filter);
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <Skeleton key={i} className="h-32 w-full mb-2" />
+        ))}
+      </div>
+    );
+  }
 
   // Group rides by category
   const ridesByCategory = {
@@ -60,13 +71,13 @@ export function ResultsList({ filter, categorized = false }: ResultsListProps) {
     return (
       <div>
         <div className="flex gap-2 mb-4">
-          {categories.map(cat => (
+          {['fastest', 'cheapest', 'eco', 'public'].map(cat => (
             <button
-              key={cat.key}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${activeCategory === cat.key ? 'bg-primary text-white' : 'bg-muted text-muted-foreground hover:bg-accent'}`}
-              onClick={() => setActiveCategory(cat.key as any)}
+              key={cat}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${activeCategory === cat ? 'bg-primary text-white' : 'bg-muted text-muted-foreground hover:bg-accent'}`}
+              onClick={() => setActiveCategory(cat as any)}
             >
-              {cat.label}
+              {cat.charAt(0).toUpperCase() + cat.slice(1)}
             </button>
           ))}
         </div>
