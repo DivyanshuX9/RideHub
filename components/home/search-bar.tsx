@@ -21,34 +21,66 @@ import { ArrowRight, Bike, Bus, Calendar, CarFront, Clock, LocateFixed, MapPin, 
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
-export function SearchBar() {
+export function SearchBar({
+  fromValue,
+  toValue,
+  rideType: rideTypeProp,
+  setRideType: setRideTypeProp,
+  date: dateProp,
+  setDate: setDateProp,
+  time: timeProp,
+  setTime: setTimeProp
+}: {
+  fromValue?: string;
+  toValue?: string;
+  rideType?: string;
+  setRideType?: (v: string) => void;
+  date?: Date;
+  setDate?: (d: Date) => void;
+  time?: string;
+  setTime?: (t: string) => void;
+} = {}) {
   const router = useRouter();
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [from, setFrom] = useState(fromValue || '');
+  const [to, setTo] = useState(toValue || '');
+  const [date, setDate] = useState<Date | undefined>(dateProp || new Date());
   const [showFromSuggestions, setShowFromSuggestions] = useState(false);
   const [showToSuggestions, setShowToSuggestions] = useState(false);
-  const [rideType, setRideType] = useState('now');
+  const [rideType, setRideType] = useState(rideTypeProp || 'now');
   const [recommendations, setRecommendations] = useState<RideRecommendation[]>([]);
   const [showRecommendations, setShowRecommendations] = useState(false);
+  const [time, setTime] = useState<string>(timeProp || '');
+  
+  // Use controlled values if provided
+  const fromVal = fromValue !== undefined ? fromValue : from;
+  const toVal = toValue !== undefined ? toValue : to;
+  const rideTypeVal = rideTypeProp !== undefined ? rideTypeProp : rideType;
+  const dateVal = dateProp !== undefined ? dateProp : date;
+  const timeVal = timeProp !== undefined ? timeProp : time;
+  const setRideTypeVal = setRideTypeProp || setRideType;
+  const setDateVal = setDateProp || setDate;
+  const setTimeVal = setTimeProp || setTime;
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (from && to) {
-      router.push(`/results?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+    if (fromVal && toVal) {
+      router.push(`/results?from=${encodeURIComponent(fromVal)}&to=${encodeURIComponent(toVal)}`);
     }
   };
   
   const handleLocationChange = (value: string, field: 'from' | 'to') => {
+    let newFrom = fromVal;
+    let newTo = toVal;
     if (field === 'from') {
+      newFrom = value;
       setFrom(value);
     } else {
+      newTo = value;
       setTo(value);
     }
-    
     // Update recommendations when both locations are set
-    if (from && to) {
-      const newRecommendations = getRideRecommendations(from, to);
+    if (newFrom && newTo) {
+      const newRecommendations = getRideRecommendations(newFrom, newTo);
       setRecommendations(newRecommendations);
       setShowRecommendations(true);
     }
@@ -57,8 +89,10 @@ export function SearchBar() {
   const handleSuggestionClick = (location: string, field: 'from' | 'to') => {
     handleLocationChange(location, field);
     if (field === 'from') {
+      setFrom(location);
       setShowFromSuggestions(false);
     } else {
+      setTo(location);
       setShowToSuggestions(false);
     }
   };
@@ -110,12 +144,18 @@ export function SearchBar() {
                   <Input 
                     placeholder="From where?"
                     className="pl-10 pr-10"
-                    value={from}
+                    value={fromVal}
                     onChange={(e) => {
                       handleLocationChange(e.target.value, 'from');
                       setShowFromSuggestions(true);
                     }}
                     onFocus={() => setShowFromSuggestions(true)}
+                    onKeyDown={e => {
+                      if (showFromSuggestions && e.key === 'Enter') {
+                        e.preventDefault();
+                        setShowFromSuggestions(false);
+                      }
+                    }}
                   />
                   <Button 
                     type="button"
@@ -159,12 +199,18 @@ export function SearchBar() {
                   <Input 
                     placeholder="Where to?"
                     className="pl-10"
-                    value={to}
+                    value={toVal}
                     onChange={(e) => {
                       handleLocationChange(e.target.value, 'to');
                       setShowToSuggestions(true);
                     }}
                     onFocus={() => setShowToSuggestions(true)}
+                    onKeyDown={e => {
+                      if (showToSuggestions && e.key === 'Enter') {
+                        e.preventDefault();
+                        setShowToSuggestions(false);
+                      }
+                    }}
                   />
                 </div>
                 
@@ -201,7 +247,7 @@ export function SearchBar() {
                         className="w-full justify-start text-left font-normal"
                       >
                         <div className="flex items-center">
-                          {rideType === 'now' ? (
+                          {rideTypeVal === 'now' ? (
                             <>
                               <Clock className="mr-2 h-4 w-4" />
                               <span>Now</span>
@@ -210,7 +256,7 @@ export function SearchBar() {
                             <>
                               <Calendar className="mr-2 h-4 w-4" />
                               <span>
-                                {date ? date.toLocaleDateString() : 'Select date'}
+                                {dateVal ? dateVal.toLocaleDateString() : 'Select date'}
                               </span>
                             </>
                           )}
@@ -221,8 +267,8 @@ export function SearchBar() {
                       <div className="space-y-4">
                         <div className="space-y-2">
                           <RadioGroup 
-                            defaultValue={rideType}
-                            onValueChange={setRideType}
+                            defaultValue={rideTypeVal}
+                            onValueChange={setRideTypeVal}
                           >
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="now" id="now" />
@@ -235,13 +281,37 @@ export function SearchBar() {
                           </RadioGroup>
                         </div>
                         
-                        {rideType === 'schedule' && (
-                          <CalendarComponent
-                            mode="single"
-                            selected={date}
-                            onSelect={setDate}
-                            disabled={(date) => date < new Date()}
-                          />
+                        {rideTypeVal === 'schedule' && (
+                          <>
+                            <CalendarComponent
+                              mode="single"
+                              selected={dateVal}
+                              onSelect={d => d && setDateVal(d)}
+                              disabled={(date) => date < new Date()}
+                            />
+                            <div className="mt-2">
+                              <Label htmlFor="schedule-time">Select time</Label>
+                              <input
+                                id="schedule-time"
+                                type="time"
+                                className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none"
+                                value={timeVal}
+                                onChange={e => setTimeVal(e.target.value)}
+                                placeholder="Select time"
+                              />
+                            </div>
+                            {dateVal && timeVal && (
+                              <div className="mt-2 text-sm font-medium text-primary">
+                                {`${dateVal.getDate().toString().padStart(2, '0')}/${(dateVal.getMonth()+1).toString().padStart(2, '0')}/${dateVal.getFullYear()} | ${(() => {
+                                  const [h, m] = timeVal.split(':');
+                                  let hour = parseInt(h, 10);
+                                  const ampm = hour >= 12 ? 'pm' : 'am';
+                                  hour = hour % 12 || 12;
+                                  return `${hour.toString().padStart(2, '0')}:${m} ${ampm}`;
+                                })()}`}
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     </PopoverContent>
@@ -251,7 +321,7 @@ export function SearchBar() {
                 <Button 
                   type="submit" 
                   size="icon"
-                  disabled={!from || !to}
+                  disabled={!fromVal || !toVal}
                   className="shrink-0"
                 >
                   <ArrowRight className="h-5 w-5" />
