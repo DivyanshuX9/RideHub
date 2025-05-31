@@ -1,27 +1,29 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger
 } from '@/components/ui/tooltip';
-import { Zap, Clock, DollarSign, Map, List } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Bus, Clock, DollarSign, List, Map, Zap } from 'lucide-react';
 
 interface FilterBarProps {
-  activeFilter: 'fastest' | 'cheapest' | 'eco';
-  setActiveFilter: (filter: 'fastest' | 'cheapest' | 'eco') => void;
+  activeFilter: 'fastest' | 'cheapest' | 'eco' | 'public';
+  setActiveFilter: (filter: 'fastest' | 'cheapest' | 'eco' | 'public') => void;
   showMap: boolean;
   setShowMap: (show: boolean) => void;
+  showPublicOption: boolean;
 }
 
 export function FilterBar({
   activeFilter,
   setActiveFilter,
   showMap,
-  setShowMap
+  setShowMap,
+  showPublicOption
 }: FilterBarProps) {
   return (
     <motion.div
@@ -87,6 +89,26 @@ export function FilterBar({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
+        {showPublicOption && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={activeFilter === 'public' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setActiveFilter('public')}
+                  className="flex-1 sm:flex-none"
+                >
+                  <Bus className="h-4 w-4 mr-2" />
+                  Public
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Show only public transport options</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </div>
       
       <div className="flex gap-2">

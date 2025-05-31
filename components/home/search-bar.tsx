@@ -9,9 +9,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
+    Popover,
+    PopoverContent,
+    PopoverTrigger
 } from '@/components/ui/popover';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { getRideRecommendations, popularLocations } from '@/lib/mock-data';
