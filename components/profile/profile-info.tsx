@@ -60,7 +60,7 @@ export function ProfileInfo() {
             >
               <MapPin className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
               <div>
-                <div className="font-medium">{location.name}</div>
+                <div className="font-medium text-left">{location.name}</div>
                 <div className="text-xs text-muted-foreground">{location.address}</div>
               </div>
             </div>

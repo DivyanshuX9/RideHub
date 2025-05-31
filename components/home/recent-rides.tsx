@@ -2,37 +2,11 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { staggerElements } from '@/lib/animations';
 import { getIconByName, recentRides } from '@/lib/mock-data';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, MapPin } from 'lucide-react';
-import { useEffect, useRef } from 'react';
 
 export function RecentRides() {
-  const ridesRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const ridesElement = ridesRef.current;
-
-    if (ridesElement) {
-      const rideItems = ridesElement.querySelectorAll('.ride-item');
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting) {
-            Array.from(rideItems).forEach((el) => staggerElements(el, 0.1));
-            observer.disconnect();
-          }
-        },
-        { threshold: 0.1 }
-      );
-
-      observer.observe(ridesElement);
-
-      return () => observer.disconnect();
-    }
-  }, []);
-
   if (recentRides.length === 0) {
     return (
       <Card className="border-dashed">
@@ -45,23 +19,24 @@ export function RecentRides() {
   }
 
   return (
-    <div ref={ridesRef} className="space-y-4">
-      {recentRides.map((ride) => {
+    <div className="space-y-4">
+      {recentRides.map((ride, index) => {
         return (
           <motion.div
             key={ride.id}
             className="ride-item"
             initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             whileHover={{ scale: 1.01 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.2, delay: index * 0.1 }}
           >
             <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
               <CardContent className="p-0">
                 <div className="grid grid-cols-1 md:grid-cols-4">
                   <div className="bg-primary/5 p-4 flex items-center justify-center md:border-r border-border">
-                    <div className="flex flex-col items-center text-center">
-                      {getIconByName(ride.service === 'uber' || ride.service === 'ola' ? 'car-front' : ride.service)}
-                      <div className="text-sm font-medium capitalize">{ride.service}</div>
+                    <div className="flex flex-col items-center text-center h-15  w-15">
+                      {getIconByName(ride.service)}
+                      {/* <div className="text-sm font-medium capitalize">{ride.service}</div> */}
                       <div className="text-xs text-muted-foreground">{ride.distance} km</div>
                     </div>
                   </div>
