@@ -1,84 +1,118 @@
-🚗 RideHub
+# 🚗 RideHub
 
-RideHub is a modern ride aggregation platform that allows users to search, compare, and book rides across multiple services like Uber, Ola, Rapido, Metro, Bus, and more—all through one seamless, beautifully designed interface.
+**RideHub** is a modern ride aggregation platform that allows users to search, compare, and book rides across multiple services like Uber, Ola, Rapido, Metro, Bus, and more—all through one seamless, beautifully designed interface.
 
-Whether you're looking for the fastest, cheapest, eco-friendly, or public transport option, RideHub makes mobility smarter and simpler.
+Whether you're looking for the **fastest**, **cheapest**, **eco-friendly**, or **public transport** option, RideHub makes mobility smarter and simpler.
 
-✨ Features
+---
 
-🔍 Unified Ride SearchEnter pickup and drop locations to compare price, ETA, and environmental impact across major ride services.
+## ✨ Features
 
-🧏 Categorized Ride FiltersInstantly sort by Fastest, Cheapest, Eco, and Public ride types.
+* 🔍 **Unified Ride Search**
+  Enter pickup and drop locations to compare price, ETA, and environmental impact across major ride services.
 
-🚉 Public Transport IntegrationView buses and metro options alongside private rides with clear icons and dedicated styling.
+* 🧏 **Categorized Ride Filters**
+  Instantly sort by **Fastest**, **Cheapest**, **Eco**, and **Public** ride types.
 
-🕘 Smart History FallbackHaven’t searched yet? See your recent rides and suggestions as helpful defaults.
+* 🚉 **Public Transport Integration**
+  View buses and metro options alongside private rides with clear icons and dedicated styling.
 
-⚡ Custom Loading EffectsEach screen features tailored shimmer loaders and animated spinners for a sleek native-app feel.
+* 🕘 **Smart History Fallback**
+  Haven’t searched yet? See your recent rides and suggestions as helpful defaults.
 
-📱 Responsive & AccessibleBuilt with accessibility in mind and fully responsive across mobile and desktop, with smooth Framer Motion transitions.
+* ⚡ **Custom Loading Effects**
+  Each screen features tailored shimmer loaders and animated spinners for a sleek native-app feel.
 
-✅ Zero Hydration ErrorsOptimized with Next.js App Router best practices for flawless hydration and rendering.
+* 📱 **Responsive & Accessible**
+  Built with accessibility in mind and fully responsive across mobile and desktop, with smooth Framer Motion transitions.
 
-🛠 Tech Stack
+* ✅ **Zero Hydration Errors**
+  Optimized with Next.js App Router best practices for flawless hydration and rendering.
 
-Next.js 13+ (App Router)
+---
 
-React 18
+## 🛠 Tech Stack
 
-Tailwind CSS – Utility-first styling
+* **Next.js 13+ (App Router)**
+* **React 18**
+* **Tailwind CSS** – Utility-first styling
+* **Framer Motion** – Smooth, delightful animations
+* **Lucide React** – Modern and minimal icon library
 
-Framer Motion – Smooth, delightful animations
+Backend being a private repo , which is having some updation right now
+* Node.js
+* Express.js
+* AWS
 
-Lucide React – Modern and minimal icon library
+---
 
-🚀 Getting Started
+## 🚀 Getting Started
 
-Clone the repo:
+1. **Clone the repo:**
 
-git clone https://github.com/your-username/ridehub.git
-cd ridehub
+   ```bash
+   git clone https://github.com/your-username/ridehub.git
+   cd ridehub
+   ```
 
-Install dependencies:
+2. **Install dependencies:**
 
-npm install
-# or
-yarn install
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-Start the development server:
+3. **Start the development server:**
 
-npm run dev
-# or
-yarn dev
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-Visit http://localhost:3000 in your browser.
+   Visit [http://ride-hub-rho.vercel.app] in your browser.
 
-🔐 Environment Variables
+---
 
-For upcoming features like Google Places Autocomplete, add the following to a .env.local file:
+## 🔐 Environment Variables
 
+For upcoming features and api keys for all riding services , maps, autofill services like Google Places Autocomplete, add the following to a `.env.local` file:
+
+```env
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_api_key
+```
 
-🗂 Project Structure
+---
 
+## 🗂 Project Structure
+
+```
 ridehub/
 ├── app/          # App Router routes and layouts
 ├── components/   # Reusable UI components (SearchBar, RideCard, etc.)
 ├── lib/          # Utilities, mock data, and API logic
 ├── public/       # Static assets (images, icons, logos)
-└── styles/       # Global styles (if any)
+└── styles/       # Global styles 
+```
 
-🤝 Contribution Guidelines
+---
+
+## 🤝 Contribution Guidelines
 
 We welcome contributions! To get started:
 
-Fork the repo and create a feature branch.
+1. Fork the repo and create a feature branch.
+2. Follow the existing code style (TypeScript + Tailwind + Framer Motion).
+3. Submit a pull request with a clear explanation of your changes.
 
-Follow the existing code style (TypeScript + Tailwind + Framer Motion).
+---
 
-Submit a pull request with a clear explanation of your changes.
+## 📄 License
 
-📄 License
+This project is licensed under the [MIT License](LICENSE).
 
-This project is licensed under the MIT License.
+## Author
 
+Divyanshu Sharma
+divyanshu88999@gmail.com
