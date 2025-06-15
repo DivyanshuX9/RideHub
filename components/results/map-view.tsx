@@ -24,7 +24,7 @@ const getMockCoordinates = (location: string) => {
   };
 };
 
-const MAPTILER_API_KEY = process.env.NEXT_MAPTILER_API_KEY;
+const MAPTILER_API_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
 const MAPTILER_STYLE = MAPTILER_API_KEY ? `https://api.maptiler.com/maps/streets/style.json?key=${MAPTILER_API_KEY}` : undefined;
 
 export function MapView({ from, to }: MapViewProps) {
