@@ -124,21 +124,15 @@ function ResultsPageContent() {
                 setShowMap={setShowMap}
                 showPublicOption={true}
               />
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-                <motion.div 
-                  layout
-                  className={showMap ? "col-span-1 lg:col-span-2" : "col-span-1 lg:col-span-3"}
-                >
-                  <ResultsList filter={activeFilter} />
-                </motion.div>
+              <div className="flex flex-col gap-6 mt-6">
                 {showMap && (
-                  <motion.div 
-                    layout
-                    className="col-span-1 h-[500px] lg:h-auto rounded-xl overflow-hidden sticky top-24"
-                  >
+                  <motion.div layout className="h-[500px] rounded-xl overflow-hidden">
                     <MapView from={from} to={to} />
                   </motion.div>
                 )}
+                <motion.div layout>
+                  <ResultsList filter={activeFilter} />
+                </motion.div>
               </div>
             </>
           )

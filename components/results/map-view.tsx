@@ -1,9 +1,9 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
-import Map, { Marker, NavigationControl, Source, Layer } from 'react-map-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
 import { cn } from '@/lib/utils';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { useEffect, useRef, useState } from 'react';
+import Map, { Layer, Marker, NavigationControl, Source } from 'react-map-gl';
 
 interface MapViewProps {
   from: string;
@@ -24,6 +24,9 @@ const getMockCoordinates = (location: string) => {
   };
 };
 
+const MAPTILER_API_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
+const MAPTILER_STYLE = MAPTILER_API_KEY ? `https://api.maptiler.com/maps/streets/style.json?key=${MAPTILER_API_KEY}` : undefined;
+
 export function MapView({ from, to }: MapViewProps) {
   const mapRef = useRef(null);
   const [viewState, setViewState] = useState({
@@ -35,20 +38,10 @@ export function MapView({ from, to }: MapViewProps) {
   const fromCoords = getMockCoordinates(from);
   const toCoords = getMockCoordinates(to);
   
-  // Mock route data (GeoJSON)
-  const routeData = {
-    type: 'Feature',
-    properties: {},
-    geometry: {
-      type: 'LineString',
-      coordinates: [
-        [fromCoords.lng, fromCoords.lat],
-        [fromCoords.lng + 0.01, fromCoords.lat + 0.01],
-        [toCoords.lng - 0.01, toCoords.lat - 0.01],
-        [toCoords.lng, toCoords.lat]
-      ]
-    }
-  };
+  const [routeGeoJSON, setRouteGeoJSON] = useState<any>(null);
+  const [loadingRoute, setLoadingRoute] = useState(false);
+  const [distance, setDistance] = useState<number | null>(null);
+  const [duration, setDuration] = useState<number | null>(null);
   
   const routeLayer = {
     id: 'route',
@@ -58,28 +51,47 @@ export function MapView({ from, to }: MapViewProps) {
       'line-cap': 'round'
     },
     paint: {
-      'line-color': 'hsl(var(--primary))',
+      'line-color': '#2563eb',
       'line-width': 4,
       'line-opacity': 0.8
     }
   };
   
   useEffect(() => {
-    // Center map to show both markers
-    const midLat = (fromCoords.lat + toCoords.lat) / 2;
-    const midLng = (fromCoords.lng + toCoords.lng) / 2;
-    
-    setViewState({
-      longitude: midLng,
-      latitude: midLat,
-      zoom: 12
-    });
+    async function fetchRoute() {
+      setLoadingRoute(true);
+      const url = `https://api.maptiler.com/directions/v2/route/driving/${fromCoords.lng},${fromCoords.lat};${toCoords.lng},${toCoords.lat}?key=${MAPTILER_API_KEY}&geometries=geojson`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data && data.routes && data.routes[0] && data.routes[0].geometry) {
+          setRouteGeoJSON({
+            type: 'Feature',
+            properties: {},
+            geometry: data.routes[0].geometry
+          });
+          setDistance(data.routes[0].distance); // in meters
+          setDuration(data.routes[0].duration); // in seconds
+        } else {
+          setRouteGeoJSON(null);
+          setDistance(null);
+          setDuration(null);
+        }
+      } catch (e) {
+        setRouteGeoJSON(null);
+        setDistance(null);
+        setDuration(null);
+      }
+      setLoadingRoute(false);
+    }
+    fetchRoute();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [from, to]);
 
-  if (!process.env.NEXT_PUBLIC_MAPBOX_TOKEN) {
+  if (!MAPTILER_API_KEY) {
     return (
       <div className="h-full w-full flex items-center justify-center bg-muted">
-        <p className="text-muted-foreground">Please configure your Mapbox access token</p>
+        <p className="text-muted-foreground">Please configure your MapTiler access key</p>
       </div>
     );
   }
@@ -90,8 +102,8 @@ export function MapView({ from, to }: MapViewProps) {
       <Map
         {...viewState}
         onMove={evt => setViewState(evt.viewState)}
-        mapStyle="mapbox://styles/mapbox/streets-v11"
-        mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+        mapStyle={MAPTILER_STYLE}
+        mapboxAccessToken={MAPTILER_API_KEY}
         ref={mapRef}
         attributionControl={false}
       >
@@ -113,20 +125,42 @@ export function MapView({ from, to }: MapViewProps) {
           <div className="h-6 w-6 bg-primary rounded-full flex items-center justify-center text-white text-xs">B</div>
         </Marker>
         
-        {/* @ts-ignore - The GeoJSON typings might be incomplete */}
-        <Source id="route" type="geojson" data={routeData}>
-          {/* @ts-ignore - The Layer typings might be incomplete */}
-          <Layer {...routeLayer} />
-        </Source>
+        {/* Show route if loaded */}
+        {routeGeoJSON && !loadingRoute && (
+          <Source id="route" type="geojson" data={routeGeoJSON}>
+            <Layer {...(routeLayer as any)} />
+          </Source>
+        )}
       </Map>
+      
+      {/* Loading spinner for route */}
+      {loadingRoute && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="bg-background/80 rounded-lg p-4 flex flex-col items-center">
+            <svg className="animate-spin h-8 w-8 text-primary mb-2" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+            </svg>
+            <span className="text-primary font-medium">Fetching route...</span>
+          </div>
+        </div>
+      )}
       
       <div className="absolute bottom-4 left-4 right-4 bg-card/90 backdrop-blur-sm p-3 rounded-lg shadow-md border border-border text-xs">
         <div className="font-medium">Route Information</div>
         <div className="text-muted-foreground mt-1">
-          Distance: ~{(Math.random() * 10 + 5).toFixed(1)} km • 
-          Estimated time: {Math.floor(Math.random() * 30 + 15)} min
+          {distance !== null && duration !== null ? (
+            <>
+              Distance: ~{(distance / 1000).toFixed(1)} km • Estimated time: {Math.round(duration / 60)} min
+            </>
+          ) : (
+            <>Distance and time unavailable</>
+          )}
         </div>
       </div>
+      
+      {/* Attribution for MapTiler */}
+      <div className="absolute bottom-0 right-0 bg-white/80 text-xs px-2 py-1 rounded-tl">© <a href="https://www.maptiler.com/copyright/" target="_blank" rel="noopener noreferrer">MapTiler</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a></div>
     </div>
   );
 }
