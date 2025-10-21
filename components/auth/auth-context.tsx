@@ -14,11 +14,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(storedUser);
+    if (typeof window !== 'undefined') {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) setUser(storedUser);
+    }
   }, []);
 
   const login = async (username: string, password: string) => {
+    if (typeof window === 'undefined') return false;
     // For demo: accept any username/password, or check against localStorage
     const stored = localStorage.getItem(`user:${username}`);
     if (stored && stored === password) {
@@ -30,6 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signup = async (username: string, password: string) => {
+    if (typeof window === 'undefined') return false;
     if (localStorage.getItem(`user:${username}`)) return false;
     localStorage.setItem(`user:${username}`, password);
     setUser(username);
@@ -39,7 +43,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("user");
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem("user");
+    }
   };
 
   return (

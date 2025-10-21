@@ -333,11 +333,11 @@ export function SearchBar({
                 
                 <Button 
                   type="submit" 
-                  size="icon"
                   disabled={!fromVal || !toVal}
-                  className="shrink-0"
+                  className="shrink-0 px-4"
                 >
-                  <ArrowRight className="h-5 w-5" />
+                  <ArrowRight className="h-4 w-4 mr-2" />
+                  Search
                 </Button>
               </div>
             </div>
