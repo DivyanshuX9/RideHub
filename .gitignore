@@ -7,6 +7,21 @@
 
 # testing
 /coverage
+/__tests__/
+/e2e/
+/test-results/
+/playwright-report/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+jest.config.js
+jest.setup.js
+playwright.config.ts
+test-*.json
+test-*.md
+test-*.js
+SOFTWARE_TESTING_REPORT.*
 
 # next.js
 /.next/
