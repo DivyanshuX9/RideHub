@@ -1,106 +1,99 @@
-# 🚗 RideHub
+# RideHub - Frontend
 
-**RideHub** is a modern ride aggregation platform that allows users to search, compare, and book rides across multiple services like Uber, Ola, Rapido, Metro, Bus, and more—all through one seamless, beautifully designed interface.
+RideHub is a modern ride aggregation platform that allows users to search, compare, and book rides across multiple services like Uber, Ola, Rapido, Metro, Bus, and more, all through one seamless and beautifully designed interface.
 
-Whether you're looking for the **fastest**, **cheapest**, **eco-friendly**, or **public transport** option, RideHub makes mobility smarter and simpler.
-
----
-
-## ✨ Features
-
-* 🔍 **Unified Ride Search**
-  Enter pickup and drop locations to compare price, ETA, and environmental impact across major ride services.
-
-* 🧏 **Categorized Ride Filters**
-  Instantly sort by **Fastest**, **Cheapest**, **Eco**, and **Public** ride types.
-
-* 🚉 **Public Transport Integration**
-  View buses and metro options alongside private rides with clear icons and dedicated styling.
-
-* 🕘 **Smart History Fallback**
-  Haven’t searched yet? See your recent rides and suggestions as helpful defaults.
-
-* ⚡ **Custom Loading Effects**
-  Each screen features tailored shimmer loaders and animated spinners for a sleek native-app feel.
-
-* 📱 **Responsive & Accessible**
-  Built with accessibility in mind and fully responsive across mobile and desktop, with smooth Framer Motion transitions.
-
-* ✅ **Zero Hydration Errors**
-  Optimized with Next.js App Router best practices for flawless hydration and rendering.
+Whether you are looking for the fastest, cheapest, eco-friendly, or public transport option, RideHub makes mobility smarter and simpler.
 
 ---
 
-## 🛠 Tech Stack
+## Features
 
-* **Next.js 13+ (App Router)**
-* **React 18**
-* **Tailwind CSS** – Utility-first styling
-* **Framer Motion** – Smooth, delightful animations
-* **Lucide React** – Modern and minimal icon library
-
-Backend being a private repo , which is having some updation right now
-* Node.js
-* Express.js
-* AWS
+- **Unified Ride Search** - Enter pickup and drop locations to compare price, ETA, and environmental impact across major ride services.
+- **Categorized Ride Filters** - Instantly sort by Fastest, Cheapest, Eco, and Public ride types.
+- **Public Transport Integration** - View buses and metro options alongside private rides with clear icons and dedicated styling.
+- **Live Location Autocomplete** - Powered by Nominatim (OpenStreetMap) with debounced search and abort-on-stale requests.
+- **Real Road Routing** - Map traces actual roads using OSRM, with accurate distance and ETA from the backend.
+- **Smart History Fallback** - Haven't searched yet? See your recent rides and suggestions as helpful defaults.
+- **Custom Loading Effects** - Each screen features tailored shimmer loaders and animated spinners for a sleek native-app feel.
+- **Responsive and Accessible** - Fully responsive across mobile and desktop with smooth Framer Motion transitions.
+- **Guest Login** - Try the app instantly without creating an account.
 
 ---
 
-## 🚀 Getting Started
+## Tech Stack
 
-1. **Clone the repo:**
+- **Next.js 15 (App Router)**
+- **React 18**
+- **Tailwind CSS** - Utility-first styling
+- **shadcn/ui** - Component library
+- **Framer Motion** - Animations and transitions
+- **Lucide React** - Icon library
+- **Leaflet + react-leaflet** - Interactive maps with OpenStreetMap tiles
+- **Nominatim API** - Free location autocomplete and reverse geocoding
+- **OSRM** - Open Source Routing Machine for real road distance and polylines
+
+---
+
+## Getting Started
+
+1. Clone the repo:
 
    ```bash
-   git clone https://github.com/your-username/ridehub.git
-   cd ridehub
+   git clone https://github.com/your-username/ridehub-frontend.git
+   cd ridehub-frontend
    ```
 
-2. **Install dependencies:**
+2. Install dependencies:
 
    ```bash
    npm install
-   # or
-   yarn install
    ```
 
-3. **Start the development server:**
+3. Copy the environment file and fill in values:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+4. Start the development server:
 
    ```bash
    npm run dev
-   # or
-   yarn dev
    ```
 
-   Visit [http://ride-hub-rho.vercel.app] in your browser.
+   Visit http://localhost:3000 in your browser.
 
 ---
 
-## 🔐 Environment Variables
+## Environment Variables
 
-For upcoming features and api keys for all riding services , maps, autofill services like Google Places Autocomplete, add the following to a `.env.local` file:
+See `.env.example` for all required variables.
 
 ```env
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_api_key
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXTAUTH_SECRET=your_secret_here
+NEXTAUTH_URL=http://localhost:3000
 ```
 
 ---
 
-## 🗂 Project Structure
+## Project Structure
 
 ```
-ridehub/
+ridehub-frontend/
 ├── app/          # App Router routes and layouts
-├── components/   # Reusable UI components (SearchBar, RideCard, etc.)
-├── lib/          # Utilities, mock data, and API logic
-├── public/       # Static assets (images, icons, logos)
-└── styles/       # Global styles 
+├── components/   # Reusable UI components
+├── hooks/        # Custom React hooks (useNominatim, etc.)
+├── lib/          # Utilities and mock data
+├── public/       # Static assets
+└── types/        # TypeScript type definitions
 ```
 
 ---
 
-## 🤝 Contribution Guidelines
+## Contribution Guidelines
 
-We welcome contributions! To get started:
+Contributions are welcome. To get started:
 
 1. Fork the repo and create a feature branch.
 2. Follow the existing code style (TypeScript + Tailwind + Framer Motion).
@@ -108,9 +101,11 @@ We welcome contributions! To get started:
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+---
 
 ## Author
 
