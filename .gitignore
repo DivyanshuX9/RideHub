@@ -1,11 +1,26 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-.bolt
-# dependencies
+# ===== ENVIRONMENT & SECRETS =====
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+*.pem
+*.key
+
+# ===== DEPENDENCIES =====
 /node_modules
 /.pnp
 .pnp.js
 
-# testing
+# ===== NEXT.JS =====
+/.next/
+/out/
+/build
+next-env.d.ts
+*.tsbuildinfo
+
+# ===== TESTING =====
 /coverage
 /__tests__/
 /e2e/
@@ -21,31 +36,28 @@ playwright.config.ts
 test-*.json
 test-*.md
 test-*.js
+test-runner.js
+test-execution-guide.md
 SOFTWARE_TESTING_REPORT.*
+/testreports/
 
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
+# ===== MISC =====
 .DS_Store
-*.pem
+.bolt
+.vercel
+.swc/
 
-# debug
+# ===== LOGS =====
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
-# local env files
-.env
-.env*.local
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# ===== EDITOR =====
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
