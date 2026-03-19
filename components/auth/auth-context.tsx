@@ -1,8 +1,12 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+interface User { id: string; username: string; }
+
 interface AuthContextType {
-  user: string | null;
+  user: User | null;
   login: (username: string, password: string) => Promise<boolean>;
   signup: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
@@ -11,41 +15,50 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) setUser(storedUser);
-    }
+    const stored = localStorage.getItem("ridehub_user");
+    if (stored) setUser(JSON.parse(stored));
   }, []);
 
   const login = async (username: string, password: string) => {
-    if (typeof window === 'undefined') return false;
-    // For demo: accept any username/password, or check against localStorage
-    const stored = localStorage.getItem(`user:${username}`);
-    if (stored && stored === password) {
-      setUser(username);
-      localStorage.setItem("user", username);
+    try {
+      const res = await fetch(`${API}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      if (!res.ok) return false;
+      const data: User = await res.json();
+      setUser(data);
+      localStorage.setItem("ridehub_user", JSON.stringify(data));
       return true;
+    } catch {
+      return false;
     }
-    return false;
   };
 
   const signup = async (username: string, password: string) => {
-    if (typeof window === 'undefined') return false;
-    if (localStorage.getItem(`user:${username}`)) return false;
-    localStorage.setItem(`user:${username}`, password);
-    setUser(username);
-    localStorage.setItem("user", username);
-    return true;
+    try {
+      const res = await fetch(`${API}/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      if (!res.ok) return false;
+      const data: User = await res.json();
+      setUser(data);
+      localStorage.setItem("ridehub_user", JSON.stringify(data));
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   const logout = () => {
     setUser(null);
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem("user");
-    }
+    localStorage.removeItem("ridehub_user");
   };
 
   return (
@@ -59,4 +72,4 @@ export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
-}; 
+};

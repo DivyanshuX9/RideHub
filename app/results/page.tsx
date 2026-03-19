@@ -187,6 +187,8 @@ function ResultsPageContent() {
                     rides={rides}
                     distanceKm={distanceKm}
                     isInterstate={isInterstate}
+                    from={from}
+                    to={to}
                   />
                 </motion.div>
               </div>

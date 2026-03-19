@@ -1,12 +1,15 @@
 'use client';
 
+import { useAuth } from '@/components/auth/auth-context';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { getBookingsByType, getIconByName } from '@/lib/mock-data';
+import { getIconByName } from '@/lib/mock-data';
 import { Booking, BookingType } from '@/types/booking';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, Calendar, Clock, MapPin } from 'lucide-react';
 import { useEffect, useState } from 'react';
+
+const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
 interface BookingsListProps {
   type: BookingType;
@@ -14,18 +17,26 @@ interface BookingsListProps {
 }
 
 export function BookingsList({ type, onSelectBooking }: BookingsListProps) {
+  const { user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
-    // Simulate API call
+    if (!user?.id) { setLoading(false); return; }
     setLoading(true);
-    setTimeout(() => {
-      const fetchedBookings = getBookingsByType(type);
-      setBookings(fetchedBookings);
-      setLoading(false);
-    }, 500);
-  }, [type]);
+    fetch(`${API}/bookings/${user.id}`)
+      .then(r => r.json())
+      .then((data: Booking[]) => {
+        const filtered = data.filter(b =>
+          type === 'upcoming' ? b.status === 'scheduled' :
+          type === 'past'     ? b.status === 'completed' :
+                                b.status === 'canceled'
+        );
+        setBookings(filtered);
+      })
+      .catch(() => setBookings([]))
+      .finally(() => setLoading(false));
+  }, [type, user?.id]);
   
   if (loading) {
     return (
@@ -99,7 +110,7 @@ export function BookingsList({ type, onSelectBooking }: BookingsListProps) {
                       <div className="flex flex-col items-center text-center">
                         {getIconByName(booking.service === 'uber' || booking.service === 'ola' ? 'car-front' : booking.service)}
                         <div className="text-sm font-medium capitalize">
-                          {booking.service}
+                          {booking.service} {booking.ride_type}
                         </div>
                         <div className="text-xs text-muted-foreground">
                           {booking.distance} km
@@ -111,23 +122,29 @@ export function BookingsList({ type, onSelectBooking }: BookingsListProps) {
                       <div className="flex items-start space-x-2">
                         <MapPin className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
                         <div className="space-y-1 flex-1">
-                          <div className="text-sm font-medium">From: {booking.from}</div>
-                          <div className="text-sm font-medium">To: {booking.to}</div>
+                          <div className="text-sm font-medium">From: {booking.from_location}</div>
+                          <div className="text-sm font-medium">To: {booking.to_location}</div>
                         </div>
                       </div>
                       
                       <div className="flex items-center space-x-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-xs">{booking.date}</span>
-                        
-                        <Clock className="h-4 w-4 text-muted-foreground ml-2" />
-                        <span className="text-xs">{booking.time}</span>
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-xs">{booking.duration} min</span>
+                        {booking.date && (
+                          <>
+                            <Calendar className="h-4 w-4 text-muted-foreground ml-2" />
+                            <span className="text-xs">{booking.date}</span>
+                          </>
+                        )}
+                        {booking.time && (
+                          <span className="text-xs text-muted-foreground">{booking.time}</span>
+                        )}
                       </div>
                     </div>
                     
                     <div className="bg-card p-4 flex flex-col justify-center items-center md:items-end space-y-2 border-t md:border-t-0 md:border-l border-border">
                       <div className="text-lg font-semibold">
-                        ${booking.price.toFixed(2)}
+                        ₹{booking.price.toFixed(0)}
                       </div>
                       
                       {type === 'upcoming' && (

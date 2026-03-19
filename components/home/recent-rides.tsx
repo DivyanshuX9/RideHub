@@ -45,8 +45,8 @@ export function RecentRides() {
                     <div className="flex items-start space-x-2">
                       <MapPin className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
                       <div className="space-y-1 flex-1">
-                        <div className="text-sm font-medium">From: {ride.from}</div>
-                        <div className="text-sm font-medium">To: {ride.to}</div>
+                        <div className="text-sm font-medium">From: {ride.from_location}</div>
+                        <div className="text-sm font-medium">To: {ride.to_location}</div>
                       </div>
                     </div>
 
@@ -60,7 +60,7 @@ export function RecentRides() {
                   </div>
 
                   <div className="bg-card p-4 flex flex-col justify-center items-center md:items-end space-y-2 border-t md:border-t-0 md:border-l border-border">
-                    <div className="text-lg font-semibold">${ride.price.toFixed(2)}</div>
+                    <div className="text-lg font-semibold">₹{ride.price.toFixed(0)}</div>
                     <Button variant="outline" size="sm">Book Again</Button>
                   </div>
                 </div>
