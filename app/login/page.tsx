@@ -10,7 +10,7 @@ import { useState } from "react";
 
 type Mode = "select" | "login" | "signup";
 
-const GUEST = { username: "guest_user", password: "guest1234" };
+const GUEST = { username: "guest", password: "guest1234" };
 
 export default function AuthPage() {
   const { login, signup } = useAuth();

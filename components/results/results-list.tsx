@@ -1,5 +1,6 @@
 'use client';
 
+import { useAuth } from '@/components/auth/auth-context';
 import { OlaLogo } from '@/components/logos/OlaLogo';
 import { RapidoLogo } from '@/components/logos/RapidoLogo';
 import { UberLogo } from '@/components/logos/UberLogo';
@@ -12,6 +13,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Bus, Car, Clock, IndianRupee, Train, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+
 interface RideOption {
   id: string; service: string; type: string;
   estimated_time: number; estimated_price: number;
@@ -23,6 +26,8 @@ interface ResultsListProps {
   rides?: RideOption[];
   distanceKm?: number;
   isInterstate?: boolean;
+  from?: string;
+  to?: string;
 }
 
 function getServiceIcon(service: string) {
@@ -60,7 +65,8 @@ function getMockRides(distanceKm?: number): RideOption[] {
   }));
 }
 
-export function ResultsList({ filter, rides, distanceKm, isInterstate = false }: ResultsListProps) {
+export function ResultsList({ filter, rides, distanceKm, isInterstate = false, from = '', to = '' }: ResultsListProps) {
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     setIsLoading(true);
@@ -151,7 +157,29 @@ export function ResultsList({ filter, rides, distanceKm, isInterstate = false }:
                       <div className="text-lg font-semibold flex items-center">
                         <IndianRupee className="h-4 w-4" />{option.estimated_price.toFixed(0)}
                       </div>
-                      <Button size="sm">Book Now</Button>
+                      <Button
+                        size="sm"
+                        onClick={async () => {
+                          if (!user?.id) return;
+                          await fetch(`${API}/bookings/`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              user_id: user.id,
+                              from_location: from,
+                              to_location: to,
+                              service: option.service,
+                              ride_type: option.type,
+                              price: option.estimated_price,
+                              distance: option.distance,
+                              duration: option.estimated_time,
+                              status: 'scheduled',
+                            }),
+                          });
+                        }}
+                      >
+                        Book Now
+                      </Button>
                     </div>
                   </div>
                 </CardContent>

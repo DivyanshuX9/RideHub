@@ -32,15 +32,14 @@ export function BookingDetails({ booking, onClose }: BookingDetailsProps) {
           <div className="flex items-center space-x-2">
             {getIconByName(booking.service === 'uber' || booking.service === 'ola' ? 'car-front' : booking.service)}
             <h2 className="text-lg font-semibold capitalize">
-              {booking.service} {booking.status === 'scheduled' ? 'Booking' : 'Ride'}
+              {booking.service} {booking.ride_type} {booking.status === 'scheduled' ? 'Booking' : 'Ride'}
             </h2>
           </div>
-          
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-5 w-5" />
           </Button>
         </div>
-        
+
         <div className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
@@ -48,34 +47,38 @@ export function BookingDetails({ booking, onClose }: BookingDetailsProps) {
                 <div className="text-sm text-muted-foreground">From</div>
                 <div className="flex items-start space-x-2">
                   <MapPin className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span className="font-medium">{booking.from}</span>
+                  <span className="font-medium">{booking.from_location}</span>
                 </div>
               </div>
-              
               <div className="space-y-2">
                 <div className="text-sm text-muted-foreground">To</div>
                 <div className="flex items-start space-x-2">
                   <MapPin className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span className="font-medium">{booking.to}</span>
+                  <span className="font-medium">{booking.to_location}</span>
                 </div>
               </div>
             </div>
-            
+
             <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="text-sm text-muted-foreground">Date & Time</div>
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <Calendar className="h-5 w-5 text-primary" />
-                    <span>{booking.date}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Clock className="h-5 w-5 text-primary" />
-                    <span>{booking.time}</span>
+              {(booking.date || booking.time) && (
+                <div className="space-y-2">
+                  <div className="text-sm text-muted-foreground">Date &amp; Time</div>
+                  <div className="flex items-center space-x-4">
+                    {booking.date && (
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="h-5 w-5 text-primary" />
+                        <span>{booking.date}</span>
+                      </div>
+                    )}
+                    {booking.time && (
+                      <div className="flex items-center space-x-2">
+                        <Clock className="h-5 w-5 text-primary" />
+                        <span>{booking.time}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-              
+              )}
               <div className="space-y-2">
                 <div className="text-sm text-muted-foreground">Ride Info</div>
                 <div className="flex items-center space-x-4">
@@ -91,67 +94,52 @@ export function BookingDetails({ booking, onClose }: BookingDetailsProps) {
               </div>
             </div>
           </div>
-          
+
           {booking.driverName && booking.vehicleDetails && (
             <div className="pt-2 border-t">
               <div className="space-y-4">
-                <div className="text-sm text-muted-foreground">Driver & Vehicle</div>
-                
+                <div className="text-sm text-muted-foreground">Driver &amp; Vehicle</div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                       <User className="h-6 w-6 text-primary" />
                     </div>
-                    
                     <div>
                       <div className="font-medium">{booking.driverName}</div>
-                      {booking.driverRating && (
+                      {booking.driverRating ? (
                         <div className="flex items-center text-sm text-muted-foreground">
                           <Star className="h-3 w-3 text-yellow-500 mr-1 fill-yellow-500" />
                           {booking.driverRating}
                         </div>
-                      )}
+                      ) : null}
                     </div>
                   </div>
-                  
                   <div className="flex items-center space-x-3">
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                       <Car className="h-6 w-6 text-primary" />
                     </div>
-                    
-                    <div className="text-sm">
-                      {booking.vehicleDetails}
-                    </div>
+                    <div className="text-sm">{booking.vehicleDetails}</div>
                   </div>
                 </div>
               </div>
             </div>
           )}
-          
+
           <div className="pt-2 border-t">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-muted-foreground">Total Price</div>
-                <div className="text-2xl font-bold">${booking.price.toFixed(2)}</div>
+                <div className="text-2xl font-bold">₹{booking.price.toFixed(0)}</div>
               </div>
-              
               <div className="space-x-2">
                 {booking.status === 'scheduled' && (
-                  <Button variant="destructive" size="sm">
-                    Cancel Booking
-                  </Button>
+                  <Button variant="destructive" size="sm">Cancel Booking</Button>
                 )}
-                
                 {booking.status === 'completed' && (
-                  <Button variant="outline" size="sm">
-                    Book Again
-                  </Button>
+                  <Button variant="outline" size="sm">Book Again</Button>
                 )}
-                
                 {booking.status === 'canceled' && (
-                  <Button size="sm">
-                    Rebook
-                  </Button>
+                  <Button size="sm">Rebook</Button>
                 )}
               </div>
             </div>
