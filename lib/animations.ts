@@ -5,11 +5,9 @@ export const fadeInUp = (element: Element, delay: number = 0) => {
   );
 };
 
-export const staggerElements = (elements: Element[], staggerTime: number = 0.1) => {
-  return elements.map((el, i) =>
-    el.animate(
-      [{ transform: 'translateY(20px)', opacity: '0' }, { transform: 'translateY(0)', opacity: '1' }],
-      { duration: 800, delay: i * staggerTime * 1000, easing: 'ease-out', fill: 'forwards' }
-    )
+export const staggerElements = (element: Element, delay: number = 0) => {
+  return element.animate(
+    [{ transform: 'translateY(20px)', opacity: '0' }, { transform: 'translateY(0)', opacity: '1' }],
+    { duration: 800, delay: delay * 1000, easing: 'ease-out', fill: 'forwards' }
   );
 };
