@@ -43,9 +43,10 @@ function AuthPageInner() {
     if (gId && gUsername) {
       const userData = { id: gId, username: gUsername };
       localStorage.setItem("ridehub_user", JSON.stringify(userData));
-      go("/");
+      // Small delay to ensure context updates
+      setTimeout(() => go("/"), 100);
     }
-  }, [searchParams]);
+  }, [searchParams, go]);
 
   const handleGuestLogin = async () => {
     setLoading(true);

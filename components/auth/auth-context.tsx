@@ -22,6 +22,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (stored) setUser(JSON.parse(stored));
   }, []);
 
+  // Listen for storage changes (from Google OAuth redirect or other tabs)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const stored = localStorage.getItem("ridehub_user");
+      if (stored) {
+        setUser(JSON.parse(stored));
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
   const login = async (username: string, password: string) => {
     try {
       const res = await fetch(`${API}/auth/login`, {
