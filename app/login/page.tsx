@@ -98,8 +98,8 @@ function AuthPageInner() {
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3">
                   {/* Google */}
-                  <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
-                    <GoogleIcon /> Continue with Google
+                  <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled>
+                    <GoogleIcon /> Continue with Google (Coming Soon)
                   </Button>
 
                   <div className="flex items-center gap-2">
