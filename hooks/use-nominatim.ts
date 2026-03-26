@@ -9,7 +9,7 @@ export interface NominatimResult {
   lon: string;
 }
 
-export function useNominatim(query: string, enabled = true) {
+export function useNominatim(query: string, enabled = true, userCoords?: { lat: number; lon: number }) {
   const [results, setResults] = useState<NominatimResult[]>([]);
   const [loading, setLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
@@ -21,7 +21,6 @@ export function useNominatim(query: string, enabled = true) {
       return;
     }
 
-    // Debounce — Nominatim asks for max 1 req/sec
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(async () => {
       if (abortRef.current) abortRef.current.abort();
@@ -29,12 +28,24 @@ export function useNominatim(query: string, enabled = true) {
 
       setLoading(true);
       try {
-        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=0&limit=6`;
+        // Bias results toward user's location when available
+        const proximityParam = userCoords
+          ? `&lat=${userCoords.lat}&lon=${userCoords.lon}`
+          : '';
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=0&limit=10${proximityParam}`;
         const res = await fetch(url, {
           signal: abortRef.current.signal,
           headers: { 'Accept-Language': 'en' },
         });
-        const data: NominatimResult[] = await res.json();
+        let data: NominatimResult[] = await res.json();
+        // Sort by distance to user if coords available
+        if (userCoords && data.length > 1) {
+          data = data.sort((a, b) => {
+            const distA = Math.hypot(parseFloat(a.lat) - userCoords.lat, parseFloat(a.lon) - userCoords.lon);
+            const distB = Math.hypot(parseFloat(b.lat) - userCoords.lat, parseFloat(b.lon) - userCoords.lon);
+            return distA - distB;
+          }).slice(0, 6);
+        }
         setResults(data);
       } catch (e: any) {
         if (e.name !== 'AbortError') setResults([]);
@@ -46,7 +57,7 @@ export function useNominatim(query: string, enabled = true) {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [query, enabled]);
+  }, [query, enabled, userCoords?.lat, userCoords?.lon]);
 
   return { results, loading };
 }

@@ -24,50 +24,7 @@ import React, { useEffect, useState } from 'react';
 
 interface LatLon { lat: string; lon: string; }
 
-function SuggestionList({
-  show, loading, items, onSelect,
-}: {
-  show: boolean;
-  loading: boolean;
-  items: { id: string; label: string }[];
-  onSelect: (label: string, item: NominatimResult) => void;
-  rawItems: NominatimResult[];
-}) {
-  if (!show) return null;
-  return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0, y: -6 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -6 }}
-        className="absolute z-20 left-0 right-0 mt-1 bg-popover shadow-lg rounded-md border overflow-hidden"
-      >
-        {loading ? (
-          <div className="flex items-center gap-2 px-3 py-3 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Searching...
-          </div>
-        ) : items.length === 0 ? (
-          <div className="px-3 py-3 text-sm text-muted-foreground">No results found</div>
-        ) : (
-          <div className="p-1 max-h-56 overflow-y-auto">
-            {items.map((item) => (
-              <div
-                key={item.id}
-                className="px-3 py-2 text-sm rounded-md hover:bg-accent cursor-pointer flex items-start gap-2"
-                onMouseDown={(e) => { e.preventDefault(); onSelect(item.label, {} as NominatimResult); }}
-              >
-                <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground" />
-                <span className="line-clamp-2">{item.label}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </motion.div>
-    </AnimatePresence>
-  );
-}
-
-// Proper component that has access to rawItems
+// Reusable suggestion dropdown
 function LocationSuggestions({
   show, loading, results, onSelect,
 }: {
@@ -144,10 +101,23 @@ export function SearchBar({
   const [time, setTime] = useState<string>(timeProp || '');
   const [fromFocused, setFromFocused] = useState(false);
   const [toFocused, setToFocused] = useState(false);
-  const [locating, setLocating] = useState(false);
+  const [locatingFrom, setLocatingFrom] = useState(false);
+  const [browserCoords, setBrowserCoords] = useState<{ lat: number; lon: number } | undefined>(undefined);
 
-  const { results: fromResults, loading: fromLoading } = useNominatim(from, fromFocused);
-  const { results: toResults, loading: toLoading } = useNominatim(to, toFocused);
+  // Silently grab browser coords once for proximity bias
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => setBrowserCoords({ lat: coords.latitude, lon: coords.longitude }),
+      () => {}
+    );
+  }, []);
+
+  const userCoords = fromCoords
+    ? { lat: parseFloat(fromCoords.lat), lon: parseFloat(fromCoords.lon) }
+    : browserCoords;
+  const { results: fromResults, loading: fromLoading } = useNominatim(from, fromFocused, userCoords);
+  const { results: toResults, loading: toLoading } = useNominatim(to, toFocused, userCoords);
 
   useEffect(() => { if (fromValue !== undefined) setFrom(fromValue); }, [fromValue]);
   useEffect(() => { if (toValue !== undefined) setTo(toValue); }, [toValue]);
@@ -190,15 +160,15 @@ export function SearchBar({
 
   const useCurrentLocation = () => {
     if (!navigator.geolocation) return;
-    setLocating(true);
+    setLocatingFrom(true);
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
         const name = await reverseGeocode(coords.latitude, coords.longitude);
         setFrom(name);
         setFromCoords({ lat: String(coords.latitude), lon: String(coords.longitude) });
-        setLocating(false);
+        setLocatingFrom(false);
       },
-      () => setLocating(false)
+      () => setLocatingFrom(false)
     );
   };
 
@@ -242,17 +212,51 @@ export function SearchBar({
                     type="button" variant="ghost" size="icon"
                     className="absolute right-1 top-1"
                     onClick={useCurrentLocation}
-                    disabled={locating}
+                    disabled={locatingFrom}
                   >
-                    {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
+                    {locatingFrom ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
                   </Button>
                 </div>
-                <LocationSuggestions
-                  show={fromFocused && from.length >= 3}
-                  loading={fromLoading}
-                  results={fromResults}
-                  onSelect={pickFrom}
-                />
+                {fromFocused && (
+                  <AnimatePresence>
+                    <motion.div
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      className="absolute z-20 left-0 right-0 mt-1 bg-popover shadow-lg rounded-md border overflow-hidden"
+                    >
+                      <div className="p-1 max-h-56 overflow-y-auto">
+                        <div
+                          className="px-3 py-2 text-sm rounded-md hover:bg-accent cursor-pointer flex items-center gap-2 border-b border-border mb-1"
+                          onMouseDown={(e) => { e.preventDefault(); useCurrentLocation(); setFromFocused(false); }}
+                        >
+                          {locatingFrom ? <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" /> : <LocateFixed className="h-3.5 w-3.5 text-primary" />}
+                          <span className="font-medium text-primary">My location</span>
+                        </div>
+                        {from.length >= 3 && (
+                          fromLoading ? (
+                            <div className="flex items-center gap-2 px-3 py-3 text-sm text-muted-foreground">
+                              <Loader2 className="h-4 w-4 animate-spin" /> Searching...
+                            </div>
+                          ) : fromResults.length === 0 ? (
+                            <div className="px-3 py-3 text-sm text-muted-foreground">No results found</div>
+                          ) : (
+                            fromResults.map((r) => (
+                              <div
+                                key={r.place_id}
+                                className="px-3 py-2 text-sm rounded-md hover:bg-accent cursor-pointer flex items-start gap-2"
+                                onMouseDown={(e) => { e.preventDefault(); pickFrom(r); }}
+                              >
+                                <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground" />
+                                <span className="line-clamp-2">{r.display_name}</span>
+                              </div>
+                            ))
+                          )
+                        )}
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+                )}
               </div>
 
               {/* TO */}
