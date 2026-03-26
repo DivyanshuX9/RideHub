@@ -25,7 +25,7 @@ function GoogleIcon() {
 }
 
 function AuthPageInner() {
-  const { login, signup } = useAuth();
+  const { login, signup, loginAsGuest } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [mode, setMode] = useState<Mode>("select");
@@ -48,12 +48,9 @@ function AuthPageInner() {
     }
   }, [searchParams, go]);
 
-  const handleGuestLogin = async () => {
-    setLoading(true);
-    await signup(GUEST.username, GUEST.password).catch(() => {});
-    const ok = await login(GUEST.username, GUEST.password);
-    setLoading(false);
-    if (ok) go("/");
+  const handleGuestLogin = () => {
+    loginAsGuest();
+    go("/");
   };
 
   const handleGoogleLogin = () => {

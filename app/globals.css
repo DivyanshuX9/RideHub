@@ -81,6 +81,13 @@
   }
   body {
     @apply bg-background text-foreground;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  @media (max-width: 767px) {
+    body {
+      padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+    }
   }
 }
 
