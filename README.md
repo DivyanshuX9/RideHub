@@ -1,4 +1,4 @@
-# RideHub — Frontend
+# RideHub : Frontend Repository
 
 RideHub is a ride aggregation platform that lets users search, compare, and book rides across Uber, Ola, Rapido, Metro, and Bus — all from one interface. It uses real road routing via OSRM, live location autocomplete via Nominatim, and a FastAPI backend with Supabase for persistence.
 
