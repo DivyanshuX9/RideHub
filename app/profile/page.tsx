@@ -147,13 +147,14 @@ function GuestProfile() {
 }
 
 export default function ProfilePage() {
-  const { user, isGuest, logout } = useAuth();
+  const { user, isGuest, hydrated, logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) router.replace("/login");
-  }, [user, router]);
+    if (hydrated && !user) router.replace("/login");
+  }, [user, hydrated, router]);
 
+  if (!hydrated) return null;
   if (!user) return null;
   if (isGuest) return <GuestProfile />;
 

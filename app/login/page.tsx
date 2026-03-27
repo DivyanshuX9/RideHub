@@ -25,7 +25,7 @@ function GoogleIcon() {
 }
 
 function AuthPageInner() {
-  const { login, signup, loginAsGuest } = useAuth();
+  const { login, signup, loginAsGuest, loginWithGoogle } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [mode, setMode] = useState<Mode>("select");
@@ -41,12 +41,10 @@ function AuthPageInner() {
     const gId = searchParams.get("google_id");
     const gUsername = searchParams.get("google_username");
     if (gId && gUsername) {
-      const userData = { id: gId, username: gUsername };
-      localStorage.setItem("ridehub_user", JSON.stringify(userData));
-      // Small delay to ensure context updates
-      setTimeout(() => go("/"), 100);
+      loginWithGoogle(gId, gUsername);
+      router.push("/profile");
     }
-  }, [searchParams, go]);
+  }, [searchParams]);
 
   const handleGuestLogin = () => {
     loginAsGuest();
@@ -71,7 +69,7 @@ function AuthPageInner() {
       if (!ok) setError("Username already taken");
     }
     setLoading(false);
-    if (ok) go("/");
+    if (ok) go("/profile");
   };
 
   return (
