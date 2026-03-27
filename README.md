@@ -27,14 +27,20 @@ Not logged   Logged in
    ├── Google OAuth ──► /auth/google (backend) ─────────┤
    │                    Google consent screen           │
    │                    /auth/google/callback           │
-   │                    redirect → /?google_id=...      │
+   │                    redirect → /login?google_id=... │
+   │                    loginWithGoogle() → context     │
+   │                    redirect → /profile             │
    │                                                    │
    └── Username/Password                                │
        wakeBackend() ping /health                       │
        POST /auth/login or /auth/signup                 │
        JWT-free session stored in localStorage          │
+       redirect → /profile                             │
                                                         │
                     ┌───────────────────────────────────┘
+                    ▼
+             /profile (dashboard)
+                    │
                     ▼
               Home Page (/)
                     │
@@ -98,9 +104,10 @@ Not logged   Logged in
 | Maps | Leaflet + react-leaflet |
 | Location Search | Nominatim (OpenStreetMap) |
 | Road Routing | OSRM (via backend) |
-| Auth | Custom username/password + Google OAuth |
-| State | React Context (AuthContext) |
+| Auth | Custom username/password + Google OAuth + Guest mode |
+| Auth State | React Context (AuthContext) with hydration guard |
 | Theme | next-themes with View Transition API ripple |
+| Mobile | Capacitor (Android) |
 
 ---
 
@@ -111,11 +118,14 @@ Not logged   Logged in
 - **Proximity-biased autocomplete** — Nominatim results sorted by distance to user
 - **My location** — one-tap geolocation fill for the From field
 - **Guest mode** — instant access with mock profile data, zero backend calls
-- **Google OAuth** — sign in with Google via backend redirect flow
+- **Google OAuth** — sign in with Google via backend redirect flow → redirects to `/profile`
+- **Username/Password auth** — signup and login with bcrypt-hashed passwords
+- **Hydration-safe auth guard** — profile page waits for localStorage hydration before redirecting
 - **Theme ripple** — light/dark toggle expands as a circle from the button using View Transition API
 - **Floating bottom nav** — pill-shaped dynamic island nav on mobile
 - **Scheduled rides** — pick a future date and time for later bookings
 - **Booking history** — persisted per user in Supabase
+- **Android app** — Capacitor wraps the web app into a native Android APK
 
 ---
 
@@ -156,15 +166,15 @@ RideHub/
 
 ```bash
 # 1. Clone
-git clone https://github.com/your-username/ridehub.git
-cd ridehub/RideHub
+git clone https://github.com/DivyanshuX9/RideHub.git
+cd RideHub/RideHub
 
 # 2. Install
 npm install
 
 # 3. Configure
 cp .env.example .env.local
-# Set NEXT_PUBLIC_API_URL to your backend URL
+# Set NEXT_PUBLIC_API_URL=http://localhost:8000
 
 # 4. Run
 npm run dev
@@ -175,6 +185,21 @@ npm run dev
 
 ---
 
+## Mobile (Android)
+
+The app is wrapped with Capacitor for Android.
+
+```bash
+# Build static export and open in Android Studio
+npm run cap:android
+```
+
+**Prerequisites:** Android Studio + JDK 17+
+
+> Google OAuth does not work inside the Capacitor in-app browser. Use username/password or guest login in the mobile app.
+
+---
+
 ## Environment Variables
 
 | Variable | Description |
@@ -182,6 +207,8 @@ npm run dev
 | `NEXT_PUBLIC_API_URL` | Base URL of the RideHub backend API |
 
 See `.env.example` for the template.
+
+> For Google OAuth locally, also set `BACKEND_URL=http://localhost:8000` and `FRONTEND_URL=http://localhost:3000` in the backend `.env`, and register `http://localhost:8000/auth/google/callback` in Google Cloud Console.
 
 ---
 
