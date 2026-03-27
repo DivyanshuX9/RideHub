@@ -7,6 +7,9 @@
 .env.test
 *.pem
 *.key
+*_auth.json
+*-auth.json
+service-account*.json
 
 # ===== DEPENDENCIES =====
 /node_modules
