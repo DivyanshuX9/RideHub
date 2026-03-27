@@ -18,9 +18,11 @@ interface User { id: string; username: string; }
 interface AuthContextType {
   user: User | null;
   isGuest: boolean;
+  hydrated: boolean;
   login: (username: string, password: string) => Promise<boolean>;
   signup: (username: string, password: string) => Promise<boolean>;
   loginAsGuest: () => void;
+  loginWithGoogle: (id: string, username: string) => void;
   logout: () => void;
 }
 
@@ -29,11 +31,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isGuest, setIsGuest] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("ridehub_user");
     if (stored) setUser(JSON.parse(stored));
     if (localStorage.getItem("ridehub_guest") === "1") setIsGuest(true);
+    setHydrated(true);
   }, []);
 
   // Listen for storage changes (from Google OAuth redirect or other tabs)
@@ -47,6 +51,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
+
+  const loginWithGoogle = (id: string, username: string) => {
+    const userData: User = { id, username };
+    setUser(userData);
+    setIsGuest(false);
+    localStorage.setItem("ridehub_user", JSON.stringify(userData));
+  };
 
   const loginAsGuest = () => {
     const guest: User = { id: "guest", username: "Guest" };
@@ -108,7 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isGuest, login, signup, loginAsGuest, logout }}>
+    <AuthContext.Provider value={{ user, isGuest, hydrated, login, signup, loginAsGuest, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );
