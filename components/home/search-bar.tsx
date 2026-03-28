@@ -191,7 +191,7 @@ export function SearchBar({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
     >
-      <Card className="shadow-lg border-0 bg-card/90 backdrop-blur-sm">
+      <Card className="shadow-lg border-0 bg-card [transform:translateZ(0)]">
         <CardContent className="p-6">
           <form onSubmit={handleSearch}>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
