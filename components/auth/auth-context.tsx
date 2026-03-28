@@ -1,9 +1,8 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import API from "@/lib/api";
 
-// Wake up Render backend if sleeping (free tier spins down after inactivity)
 async function wakeBackend() {
   try {
     const ctrl = new AbortController();
@@ -34,18 +33,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem("ridehub_user");
-    if (stored) setUser(JSON.parse(stored));
-    if (localStorage.getItem("ridehub_guest") === "1") setIsGuest(true);
+    try {
+      const stored = localStorage.getItem("ridehub_user");
+      if (stored) setUser(JSON.parse(stored));
+      if (localStorage.getItem("ridehub_guest") === "1") setIsGuest(true);
+    } catch {
+      localStorage.removeItem("ridehub_user");
+      localStorage.removeItem("ridehub_guest");
+    }
     setHydrated(true);
   }, []);
 
-  // Listen for storage changes (from Google OAuth redirect or other tabs)
+  // Listen for storage changes (other tabs / windows only — same-tab updates use context directly)
   useEffect(() => {
-    const handleStorageChange = () => {
-      const stored = localStorage.getItem("ridehub_user");
-      if (stored) {
-        setUser(JSON.parse(stored));
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === null) {
+        setUser(null);
+        setIsGuest(false);
+        return;
+      }
+      if (e.key === "ridehub_user") {
+        if (!e.newValue) {
+          setUser(null);
+          return;
+        }
+        try {
+          setUser(JSON.parse(e.newValue));
+        } catch {
+          localStorage.removeItem("ridehub_user");
+          localStorage.removeItem("ridehub_guest");
+          setUser(null);
+          setIsGuest(false);
+        }
+      }
+      if (e.key === "ridehub_guest") {
+        setIsGuest(e.newValue === "1");
       }
     };
     window.addEventListener("storage", handleStorageChange);
