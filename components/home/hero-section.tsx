@@ -60,13 +60,12 @@ export function HeroSection() {
           </motion.div>
         </motion.div>
       </div>
-      {/* Wave overlay at bottom */}
-      <div className="absolute bottom-0 left-0 right-0">
+      {/* Wave overlay at bottom — block SVG + leading-none avoids sub-pixel hairline under wave at non-100% zoom */}
+      <div className="absolute bottom-0 left-0 right-0 leading-none -mb-px">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 1440 320"
-          className="w-full h-auto"
-          style={{ top: 1.1, right: 0 }}
+          className="block w-full h-auto align-top"
         >
           <path
             fill="hsl(var(--background))"
