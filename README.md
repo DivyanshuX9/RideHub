@@ -11,8 +11,10 @@ User opens RideHub
         │
         ▼
 ┌───────────────────┐
-│   Auth Check      │  localStorage → ridehub_user
+│   Auth Check      │
 └───────┬───────────┘
+        │  ridehub_user: try/catch on hydrate + cross-tab storage event;
+        │  corrupt JSON clears keys and resets auth state
         │
    ┌────┴─────┐
    │          │
@@ -121,6 +123,7 @@ Not logged   Logged in
 - **Google OAuth** — sign in with Google via backend redirect flow → redirects to `/profile`
 - **Username/Password auth** — signup and login with bcrypt-hashed passwords
 - **Hydration-safe auth guard** — profile page waits for localStorage hydration before redirecting
+- **Resilient `localStorage` auth** — `ridehub_user` is parsed inside `try/catch` on initial load and on cross-tab `storage` events; invalid JSON removes `ridehub_user` / `ridehub_guest` and resets state so the app does not throw
 - **Theme ripple** — light/dark toggle expands as a circle from the button using View Transition API
 - **Floating bottom nav** — pill-shaped dynamic island nav on mobile
 - **Scheduled rides** — pick a future date and time for later bookings
@@ -153,6 +156,7 @@ RideHub/
 ├── hooks/
 │   └── use-nominatim.ts        # Debounced location search with proximity bias
 ├── lib/
+│   ├── api.ts                  # Centralized `NEXT_PUBLIC_API_URL` base for fetches
 │   ├── mock-data.tsx           # Fallback ride recommendations
 │   └── utils.ts                # cn() and helpers
 └── types/

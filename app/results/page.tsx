@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+import API from '@/lib/api';
 
 interface RideOption {
   id: string; service: string; type: string;

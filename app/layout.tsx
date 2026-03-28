@@ -25,8 +25,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className + ' min-h-screen bg-background antialiased'}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <Navbar />
           <Providers>
+            <Navbar />
             <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
               {children}
             </Suspense>

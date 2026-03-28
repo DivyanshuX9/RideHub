@@ -25,7 +25,7 @@ const nextConfig = {
       return [
         {
           source: '/api/:path*',
-          destination: 'https://ridehub-backend-o9o8.onrender.com/:path*',
+          destination: `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'}/:path*`,
         },
       ];
     },

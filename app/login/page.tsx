@@ -11,8 +11,6 @@ import { useState, useEffect, Suspense } from "react";
 
 type Mode = "select" | "login" | "signup";
 
-const GUEST = { username: "guest", password: "guest1234" };
-
 function GoogleIcon() {
   return (
     <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24">
