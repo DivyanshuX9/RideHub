@@ -30,9 +30,9 @@ export function FilterBar({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="flex flex-col sm:flex-row justify-between gap-4 bg-card rounded-lg shadow-sm border p-2"
+      className="flex flex-col gap-2 bg-card rounded-lg shadow-sm border p-2"
     >
-      <div className="flex gap-2">
+      <div className="flex gap-2 overflow-x-auto scrollbar-none">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -40,7 +40,7 @@ export function FilterBar({
                 variant={activeFilter === 'fastest' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setActiveFilter('fastest')}
-                className="flex-1 sm:flex-none"
+                className="shrink-0"
               >
                 <Clock className="h-4 w-4 mr-2" />
                 Fastest
@@ -59,7 +59,7 @@ export function FilterBar({
                 variant={activeFilter === 'cheapest' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setActiveFilter('cheapest')}
-                className="flex-1 sm:flex-none"
+                className="shrink-0"
               >
                 <DollarSign className="h-4 w-4 mr-2" />
                 Cheapest
@@ -78,7 +78,7 @@ export function FilterBar({
                 variant={activeFilter === 'eco' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setActiveFilter('eco')}
-                className="flex-1 sm:flex-none"
+                className="shrink-0"
               >
                 <Zap className="h-4 w-4 mr-2" />
                 Eco-friendly
@@ -97,7 +97,7 @@ export function FilterBar({
                   variant={activeFilter === 'public' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setActiveFilter('public')}
-                  className="flex-1 sm:flex-none"
+                  className="shrink-0"
                 >
                   <Bus className="h-4 w-4 mr-2" />
                   Public
@@ -119,7 +119,7 @@ export function FilterBar({
                 variant={showMap ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setShowMap(true)}
-                className="flex-1 sm:flex-none"
+                className="flex-1"
               >
                 <Map className="h-4 w-4 mr-2" />
                 Map
@@ -138,7 +138,7 @@ export function FilterBar({
                 variant={!showMap ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setShowMap(false)}
-                className="flex-1 sm:flex-none"
+                className="flex-1"
               >
                 <List className="h-4 w-4 mr-2" />
                 List Only
