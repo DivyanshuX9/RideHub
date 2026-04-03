@@ -9,7 +9,7 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen">
       <HeroSection />
       
-      <section className="relative z-10 bg-background px-4 md:px-6 lg:px-8 -mt-20 overflow-visible">
+      <section className="relative z-20 bg-background px-4 md:px-6 lg:px-8 -mt-20 overflow-visible">
         <div className="max-w-7xl mx-auto">
           <SearchBar />
         </div>
