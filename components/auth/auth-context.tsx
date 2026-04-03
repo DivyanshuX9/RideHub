@@ -12,7 +12,7 @@ async function wakeBackend() {
   } catch {}
 }
 
-interface User { id: string; username: string; }
+interface User { id: string; username: string; sessionToken: string; }
 
 interface AuthContextType {
   user: User | null;
@@ -21,7 +21,7 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<boolean>;
   signup: (username: string, password: string) => Promise<boolean>;
   loginAsGuest: () => void;
-  loginWithGoogle: (id: string, username: string) => void;
+  loginWithGoogle: (id: string, username: string, sessionToken: string) => void;
   logout: () => void;
 }
 
@@ -74,15 +74,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  const loginWithGoogle = (id: string, username: string) => {
-    const userData: User = { id, username };
+  const loginWithGoogle = (id: string, username: string, sessionToken: string) => {
+    const userData: User = { id, username, sessionToken };
     setUser(userData);
     setIsGuest(false);
     localStorage.setItem("ridehub_user", JSON.stringify(userData));
   };
 
   const loginAsGuest = () => {
-    const guest: User = { id: "guest", username: "Guest" };
+    const guest: User = { id: "guest", username: "Guest", sessionToken: "" };
     setUser(guest);
     setIsGuest(true);
     localStorage.setItem("ridehub_user", JSON.stringify(guest));
@@ -102,9 +102,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       clearTimeout(t);
       if (!res.ok) return false;
-      const data: User = await res.json();
-      setUser(data);
-      localStorage.setItem("ridehub_user", JSON.stringify(data));
+      const data = await res.json();
+      const userData: User = { id: data.id, username: data.username, sessionToken: data.session_token };
+      setUser(userData);
+      localStorage.setItem("ridehub_user", JSON.stringify(userData));
       return true;
     } catch {
       return false;
@@ -124,9 +125,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       clearTimeout(t);
       if (!res.ok) return false;
-      const data: User = await res.json();
-      setUser(data);
-      localStorage.setItem("ridehub_user", JSON.stringify(data));
+      const data = await res.json();
+      const userData: User = { id: data.id, username: data.username, sessionToken: data.session_token };
+      setUser(userData);
+      localStorage.setItem("ridehub_user", JSON.stringify(userData));
       return true;
     } catch {
       return false;

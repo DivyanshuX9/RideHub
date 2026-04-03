@@ -38,8 +38,9 @@ function AuthPageInner() {
   useEffect(() => {
     const gId = searchParams.get("google_id");
     const gUsername = searchParams.get("google_username");
-    if (gId && gUsername) {
-      loginWithGoogle(gId, gUsername);
+    const gToken = searchParams.get("session_token");
+    if (gId && gUsername && gToken) {
+      loginWithGoogle(gId, gUsername, gToken);
       router.push("/profile");
     }
   }, [searchParams]);
