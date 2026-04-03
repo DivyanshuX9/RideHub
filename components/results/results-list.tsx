@@ -160,10 +160,13 @@ export function ResultsList({ filter, rides, distanceKm, isInterstate = false, f
                       <Button
                         size="sm"
                         onClick={async () => {
-                          if (!user?.id) return;
+                          if (!user?.id || !user?.sessionToken) return;
                           await fetch(`${API}/bookings/`, {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: {
+                              'Content-Type': 'application/json',
+                              'X-User-Id': user.id,
+                            },
                             body: JSON.stringify({
                               user_id: user.id,
                               from_location: from,
