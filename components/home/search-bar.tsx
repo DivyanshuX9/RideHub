@@ -40,7 +40,7 @@ function LocationSuggestions({
         initial={{ opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -6 }}
-        className="absolute z-20 left-0 right-0 mt-1 bg-popover shadow-lg rounded-md border overflow-hidden"
+        className="absolute z-50 left-0 right-0 mt-1 bg-popover shadow-lg rounded-md border overflow-hidden"
       >
         {loading ? (
           <div className="flex items-center gap-2 px-3 py-3 text-sm text-muted-foreground">
@@ -191,7 +191,7 @@ export function SearchBar({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
     >
-      <Card className="shadow-lg border-0 bg-card [transform:translateZ(0)]">
+      <Card className="shadow-lg border-0 bg-card">
         <CardContent className="p-6">
           <form onSubmit={handleSearch}>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -223,7 +223,7 @@ export function SearchBar({
                       initial={{ opacity: 0, y: -6 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -6 }}
-                      className="absolute z-20 left-0 right-0 mt-1 bg-popover shadow-lg rounded-md border overflow-hidden"
+                      className="absolute z-50 left-0 right-0 mt-1 bg-popover shadow-lg rounded-md border overflow-hidden"
                     >
                       <div className="p-1 max-h-56 overflow-y-auto">
                         <div
