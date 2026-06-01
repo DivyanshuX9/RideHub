@@ -47,7 +47,7 @@
     --chart-5: 142 71% 70%; /* green */
     --radius: 0.5rem;
   }
-  .dark {
+   .dark {
     --background: 0 0% 4%;
     --foreground: 0 0% 95%;
     --card: 0 0% 7%;
