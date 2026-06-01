@@ -9,23 +9,24 @@ const STORAGE_KEY = "ridehub_palette_id";
 function applyPalette(paletteId: string, theme: string) {
   const palette = COLOR_PALETTES.find(item => item.id === paletteId) ?? COLOR_PALETTES[0];
   const root = document.documentElement;
-  // Only override accent colors — never touch background/foreground/card
-  // so dark mode black palette is always preserved
-  root.style.setProperty("--primary", palette.primary);
-  root.style.setProperty("--ring", palette.ring);
+  if (theme === 'dark') {
+    // Dark mode: only apply palette to charts, keep everything else from CSS
+    root.style.removeProperty("--primary");
+    root.style.removeProperty("--secondary");
+    root.style.removeProperty("--accent");
+    root.style.removeProperty("--ring");
+  } else {
+    // Light mode: apply full palette
+    root.style.setProperty("--primary", palette.primary);
+    root.style.setProperty("--secondary", palette.secondary);
+    root.style.setProperty("--accent", palette.accent);
+    root.style.setProperty("--ring", palette.ring);
+  }
   root.style.setProperty("--chart-1", palette.chart[0]);
   root.style.setProperty("--chart-2", palette.chart[1]);
   root.style.setProperty("--chart-3", palette.chart[2]);
   root.style.setProperty("--chart-4", palette.chart[3]);
   root.style.setProperty("--chart-5", palette.chart[4]);
-  // In light mode also apply secondary/accent; in dark keep them neutral
-  if (theme !== 'dark') {
-    root.style.setProperty("--secondary", palette.secondary);
-    root.style.setProperty("--accent", palette.accent);
-  } else {
-    root.style.removeProperty("--secondary");
-    root.style.removeProperty("--accent");
-  }
 }
 
 export function PaletteApplier() {
