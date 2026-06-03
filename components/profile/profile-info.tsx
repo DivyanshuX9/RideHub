@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/components/auth/auth-context';
-import { User, Calendar } from 'lucide-react';
+import { Calendar, User } from 'lucide-react';
 
 export function ProfileInfo() {
   const { user } = useAuth();
@@ -12,7 +12,8 @@ export function ProfileInfo() {
         <User className="h-10 w-10 text-primary" />
       </div>
 
-      <h3 className="text-xl font-bold mb-1">{user?.username}</h3>
+      <h3 className="text-xl font-bold mb-1">{user?.name || user?.email}</h3>
+      <p className="text-sm text-muted-foreground">{user?.email}</p>
 
       <div className="space-y-2 mt-4 w-full">
         <div className="flex items-center space-x-2 text-sm">
