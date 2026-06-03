@@ -1,14 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useAuth } from '@/components/auth/auth-context';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { getIconByName } from '@/lib/mock-data';
-import { useAuth } from '@/components/auth/auth-context';
 import { Booking } from '@/types/booking';
-import { MapPin, Calendar, Clock } from 'lucide-react';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+import { Calendar, Clock, MapPin } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export function RecentRides() {
   const { user } = useAuth();
@@ -17,7 +15,7 @@ export function RecentRides() {
 
   useEffect(() => {
     if (!user?.id) { setLoading(false); return; }
-    fetch(`${API}/bookings/${user.id}`)
+    fetch(`/api/bookings/${user.id}`)
       .then(r => r.json())
       .then((data: Booking[]) => setRides(data.filter(b => b.status === 'completed').slice(0, 3)))
       .catch(() => setRides([]))
