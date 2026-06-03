@@ -3,12 +3,12 @@ import { useAuth } from "@/components/auth/auth-context";
 import { PaymentMethods } from '@/components/profile/payment-methods';
 import { PreferencesForm } from '@/components/profile/preferences-form';
 import { ProfileInfo } from '@/components/profile/profile-info';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
-import { MapPin, Clock, Star, Zap, CreditCard, Bell } from 'lucide-react';
+import { Bell, Clock, CreditCard, MapPin, Star, Zap } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -24,7 +24,7 @@ const item = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transiti
 function GuestProfile() {
   const { logout } = useAuth();
   const router = useRouter();
-  const handleLogout = () => { logout(); router.replace("/login"); };
+  const handleLogout = async () => { await logout(); router.replace("/"); };
 
   return (
     <div className="min-h-screen pt-20">
@@ -158,7 +158,7 @@ export default function ProfilePage() {
   if (!user) return null;
   if (isGuest) return <GuestProfile />;
 
-  const handleLogout = () => { logout(); router.replace("/login"); };
+  const handleLogout = async () => { await logout(); router.replace("/"); };
 
   return (
     <div className="min-h-screen pt-20">
