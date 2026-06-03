@@ -158,11 +158,13 @@ export function ResultsList({ filter, rides, distanceKm, isInterstate = false, f
                       <Button
                         size="sm"
                         onClick={async () => {
-                          if (!user?.id) return;
-                          await fetch('/api/bookings', {
+                          if (!user?.id || !user?.sessionToken) return;
+                          const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+                          await fetch(`${API}/bookings/`, {
                             method: 'POST',
                             headers: {
                               'Content-Type': 'application/json',
+                              'X-User-Id': user.id,
                             },
                             body: JSON.stringify({
                               user_id: user.id,

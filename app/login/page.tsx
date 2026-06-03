@@ -27,8 +27,7 @@ function AuthPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [mode, setMode] = useState<Mode>("select");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -38,11 +37,10 @@ function AuthPageInner() {
   // Handle Google OAuth callback
   useEffect(() => {
     const gId = searchParams.get("google_id");
-    const gName = searchParams.get("google_name");
-    const gEmail = searchParams.get("google_email");
+    const gUsername = searchParams.get("google_username");
     const gToken = searchParams.get("session_token");
-    if (gId && gName && gEmail && gToken) {
-      loginWithGoogle({ id: gId, name: gName, email: gEmail, provider: "google" });
+    if (gId && gUsername && gToken) {
+      loginWithGoogle(gId, gUsername, gToken);
       router.replace("/profile");
     }
 
@@ -62,7 +60,7 @@ function AuthPageInner() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "/api/auth/google";
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'}/auth/google`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,11 +69,11 @@ function AuthPageInner() {
     setLoading(true);
     let ok = false;
     if (mode === "login") {
-      ok = await login(email, password);
-      if (!ok) setError("Invalid email or password");
+      ok = await login(username, password);
+      if (!ok) setError("Invalid username or password");
     } else {
-      ok = await signup(name, email, password);
-      if (!ok) setError("Signup failed. Check your details and try again.");
+      ok = await signup(username, password);
+      if (!ok) setError("Username already taken.");
     }
     setLoading(false);
     if (ok) go("/");
@@ -175,20 +173,22 @@ function AuthPageInner() {
                   <form onSubmit={handleSubmit} className="space-y-4">
                     {mode === "signup" && (
                       <Input
-                        placeholder="Full name"
-                        value={name}
-                        onChange={e => setName(e.target.value)}
+                        placeholder="Username"
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
                         required
                         autoFocus
                       />
                     )}
-                    <Input
-                      type="email"
-                      placeholder="Email"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      required
-                    />
+                    {mode === "login" && (
+                      <Input
+                        placeholder="Username"
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
+                        required
+                        autoFocus
+                      />
+                    )}
                     <Input
                       type="password"
                       placeholder="Password"
@@ -211,7 +211,7 @@ function AuthPageInner() {
                   </form>
                   <button
                     className="mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    onClick={() => { setMode("select"); setError(null); setName(""); setEmail(""); setPassword(""); }}
+                    onClick={() => { setMode("select"); setError(null); setUsername(""); setPassword(""); }}
                   >
                     ← Back
                   </button>

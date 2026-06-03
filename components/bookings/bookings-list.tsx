@@ -14,15 +14,19 @@ interface BookingsListProps {
   onSelectBooking: (booking: Booking) => void;
 }
 
+import API from '@/lib/api';
+
 export function BookingsList({ type, onSelectBooking }: BookingsListProps) {
   const { user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.id) { setLoading(false); return; }
+    if (!user?.id || !user?.sessionToken) { setLoading(false); return; }
     setLoading(true);
-    fetch(`/api/bookings/${user.id}`)
+    fetch(`${API}/bookings/${user.id}`, {
+      headers: { 'X-User-Id': user.id },
+    })
       .then(r => r.json())
       .then((data: Booking[]) => {
         const filtered = data.filter(b =>

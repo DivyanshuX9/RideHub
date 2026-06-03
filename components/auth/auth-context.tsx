@@ -1,22 +1,24 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
+import API from "@/lib/api";
+
+const STORAGE_KEY = "ridehub_user";
+const GUEST_KEY = "ridehub_guest";
 
 export interface User {
   id: string;
-  name: string;
-  email: string;
-  avatarUrl?: string | null;
-  provider?: "password" | "google";
+  username: string;
+  sessionToken: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isGuest: boolean;
   hydrated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  signup: (name: string, email: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string) => Promise<boolean>;
+  signup: (username: string, password: string) => Promise<boolean>;
   loginAsGuest: () => void;
-  loginWithGoogle: (user: User) => void;
+  loginWithGoogle: (id: string, username: string, sessionToken: string) => void;
   logout: () => void;
 }
 
@@ -28,95 +30,82 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    const hydrate = async () => {
-      try {
-        const isStoredGuest = localStorage.getItem("ridehub_guest") === "1";
-        const res = await fetch("/api/auth/me", { credentials: "include" });
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
-          setIsGuest(false);
-        } else if (isStoredGuest) {
-          setUser({ id: "guest", name: "Guest", email: "guest@ridehub.local", provider: "password" });
-          setIsGuest(true);
-        } else {
-          setUser(null);
-          setIsGuest(false);
-        }
-      } catch {
-        if (localStorage.getItem("ridehub_guest") === "1") {
-          setUser({ id: "guest", name: "Guest", email: "guest@ridehub.local", provider: "password" });
-          setIsGuest(true);
-        }
-      } finally {
-        setHydrated(true);
-      }
-    };
-
-    hydrate();
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) setUser(JSON.parse(stored));
+      if (localStorage.getItem(GUEST_KEY) === "1") setIsGuest(true);
+    } catch {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(GUEST_KEY);
+    }
+    setHydrated(true);
   }, []);
 
-  const loginWithGoogle = (nextUser: User) => {
-    setUser(nextUser);
+  useEffect(() => {
+    const handle = (e: StorageEvent) => {
+      if (e.key === null) { setUser(null); setIsGuest(false); return; }
+      if (e.key === STORAGE_KEY) {
+        if (!e.newValue) { setUser(null); return; }
+        try { setUser(JSON.parse(e.newValue)); } catch { setUser(null); }
+      }
+      if (e.key === GUEST_KEY) setIsGuest(e.newValue === "1");
+    };
+    window.addEventListener("storage", handle);
+    return () => window.removeEventListener("storage", handle);
+  }, []);
+
+  const persist = (u: User) => {
+    setUser(u);
     setIsGuest(false);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
+    localStorage.removeItem(GUEST_KEY);
+  };
+
+  const login = async (username: string, password: string) => {
+    try {
+      const res = await fetch(`${API}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      if (!res.ok) return false;
+      const data = await res.json();
+      persist({ id: data.id, username: data.username, sessionToken: data.session_token });
+      return true;
+    } catch { return false; }
+  };
+
+  const signup = async (username: string, password: string) => {
+    try {
+      const res = await fetch(`${API}/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      if (!res.ok) return false;
+      const data = await res.json();
+      persist({ id: data.id, username: data.username, sessionToken: data.session_token });
+      return true;
+    } catch { return false; }
   };
 
   const loginAsGuest = () => {
-    const guest: User = { id: "guest", name: "Guest", email: "guest@ridehub.local", provider: "password" };
+    const guest: User = { id: "guest", username: "Guest", sessionToken: "" };
     setUser(guest);
     setIsGuest(true);
-    localStorage.setItem("ridehub_guest", "1");
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(guest));
+    localStorage.setItem(GUEST_KEY, "1");
   };
 
-  const login = async (email: string, password: string) => {
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-        credentials: "include",
-      });
-      const data = await res.json().catch(() => null);
-      if (!res.ok) return false;
-      if (data?.user) {
-        setUser(data.user);
-        setIsGuest(false);
-      }
-      return true;
-    } catch {
-      return false;
-    }
+  const loginWithGoogle = (id: string, username: string, sessionToken: string) => {
+    persist({ id, username, sessionToken });
   };
 
-  const signup = async (name: string, email: string, password: string) => {
-    try {
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-        credentials: "include",
-      });
-      const data = await res.json().catch(() => null);
-      if (!res.ok) return false;
-      if (data?.user) {
-        setUser(data.user);
-        setIsGuest(false);
-      }
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  const logout = async () => {
-    try {
-      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
-    } catch {
-      // ignore network failures on logout
-    }
+  const logout = () => {
     setUser(null);
     setIsGuest(false);
-    localStorage.removeItem("ridehub_guest");
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(GUEST_KEY);
   };
 
   return (
