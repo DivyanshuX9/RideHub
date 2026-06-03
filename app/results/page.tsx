@@ -10,8 +10,6 @@ import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 
-import API from '@/lib/api';
-
 interface RideOption {
   id: string; service: string; type: string;
   estimated_time: number; estimated_price: number;
@@ -69,7 +67,7 @@ function ResultsPageContent() {
       // Route (road distance + interstate)
       if (fromLat && fromLon && toLat && toLon) {
         try {
-          const r = await fetch(`${API}/route/`, {
+          const r = await fetch('/api/route', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -87,7 +85,7 @@ function ResultsPageContent() {
 
       // Rides
       try {
-        const r = await fetch(`${API}/rides/search`, {
+        const r = await fetch('/api/rides/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
