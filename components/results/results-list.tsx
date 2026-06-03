@@ -13,8 +13,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Bus, Car, Clock, IndianRupee, Train, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
-
 interface RideOption {
   id: string; service: string; type: string;
   estimated_time: number; estimated_price: number;
@@ -160,12 +158,11 @@ export function ResultsList({ filter, rides, distanceKm, isInterstate = false, f
                       <Button
                         size="sm"
                         onClick={async () => {
-                          if (!user?.id || !user?.sessionToken) return;
-                          await fetch(`${API}/bookings/`, {
+                          if (!user?.id) return;
+                          await fetch('/api/bookings', {
                             method: 'POST',
                             headers: {
                               'Content-Type': 'application/json',
-                              'X-User-Id': user.id,
                             },
                             body: JSON.stringify({
                               user_id: user.id,
