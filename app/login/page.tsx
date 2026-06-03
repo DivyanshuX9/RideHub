@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Car, User, Zap } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect, Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 type Mode = "select" | "login" | "signup";
 
@@ -27,7 +27,8 @@ function AuthPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [mode, setMode] = useState<Mode>("select");
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -37,13 +38,23 @@ function AuthPageInner() {
   // Handle Google OAuth callback
   useEffect(() => {
     const gId = searchParams.get("google_id");
-    const gUsername = searchParams.get("google_username");
+    const gName = searchParams.get("google_name");
+    const gEmail = searchParams.get("google_email");
     const gToken = searchParams.get("session_token");
-    if (gId && gUsername && gToken) {
-      loginWithGoogle(gId, gUsername, gToken);
-      router.push("/profile");
+    if (gId && gName && gEmail && gToken) {
+      loginWithGoogle({ id: gId, name: gName, email: gEmail, provider: "google" });
+      router.replace("/profile");
     }
-  }, [searchParams]);
+
+    const error = searchParams.get("error");
+    if (error === "google_not_configured") {
+      setError("Google login is not configured for this local environment.");
+    } else if (error === "oauth_denied") {
+      setError("Google login was cancelled.");
+    } else if (error === "oauth_failed") {
+      setError("Google login failed. Please try again.");
+    }
+  }, [searchParams, loginWithGoogle, router]);
 
   const handleGuestLogin = () => {
     loginAsGuest();
@@ -51,8 +62,7 @@ function AuthPageInner() {
   };
 
   const handleGoogleLogin = () => {
-    // Redirect to backend Google OAuth — update URL when backend OAuth is configured
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'}/auth/google`;
+    window.location.href = "/api/auth/google";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,14 +71,14 @@ function AuthPageInner() {
     setLoading(true);
     let ok = false;
     if (mode === "login") {
-      ok = await login(username, password);
-      if (!ok) setError("Invalid username or password");
+      ok = await login(email, password);
+      if (!ok) setError("Invalid email or password");
     } else {
-      ok = await signup(username, password);
-      if (!ok) setError("Username already taken");
+      ok = await signup(name, email, password);
+      if (!ok) setError("Signup failed. Check your details and try again.");
     }
     setLoading(false);
-    if (ok) go("/profile");
+    if (ok) go("/");
   };
 
   return (
@@ -92,6 +102,11 @@ function AuthPageInner() {
                   <CardTitle className="text-center text-lg">How do you want to continue?</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3">
+                  {error && (
+                    <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                      {error}
+                    </p>
+                  )}
                   {/* Google */}
                   <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
                     <GoogleIcon /> Continue with Google
@@ -158,11 +173,21 @@ function AuthPageInner() {
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-4">
+                    {mode === "signup" && (
+                      <Input
+                        placeholder="Full name"
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        required
+                        autoFocus
+                      />
+                    )}
                     <Input
-                      placeholder="Username"
-                      value={username}
-                      onChange={e => setUsername(e.target.value)}
-                      required autoFocus
+                      type="email"
+                      placeholder="Email"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      required
                     />
                     <Input
                       type="password"
@@ -173,12 +198,20 @@ function AuthPageInner() {
                     />
                     {error && <p className="text-sm text-destructive">{error}</p>}
                     <Button type="submit" className="w-full" disabled={loading}>
-                      {loading ? "Please wait..." : mode === "login" ? "Log In" : "Sign Up"}
+                      {loading ? (
+                        <span className="inline-flex items-center gap-2">
+                          <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" />
+                            <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="4" className="opacity-75" />
+                          </svg>
+                          Please wait...
+                        </span>
+                      ) : mode === "login" ? "Log In" : "Sign Up"}
                     </Button>
                   </form>
                   <button
                     className="mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    onClick={() => { setMode("select"); setError(null); setUsername(""); setPassword(""); }}
+                    onClick={() => { setMode("select"); setError(null); setName(""); setEmail(""); setPassword(""); }}
                   >
                     ← Back
                   </button>

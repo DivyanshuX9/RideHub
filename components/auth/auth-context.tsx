@@ -1,27 +1,22 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-import API from "@/lib/api";
-
-async function wakeBackend() {
-  try {
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 8000);
-    await fetch(`${API}/health`, { signal: ctrl.signal });
-    clearTimeout(t);
-  } catch {}
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl?: string | null;
+  provider?: "password" | "google";
 }
-
-interface User { id: string; username: string; sessionToken: string; }
 
 interface AuthContextType {
   user: User | null;
   isGuest: boolean;
   hydrated: boolean;
-  login: (username: string, password: string) => Promise<boolean>;
-  signup: (username: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<boolean>;
+  signup: (name: string, email: string, password: string) => Promise<boolean>;
   loginAsGuest: () => void;
-  loginWithGoogle: (id: string, username: string, sessionToken: string) => void;
+  loginWithGoogle: (user: User) => void;
   logout: () => void;
 }
 
@@ -33,112 +28,94 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("ridehub_user");
-      if (stored) setUser(JSON.parse(stored));
-      if (localStorage.getItem("ridehub_guest") === "1") setIsGuest(true);
-    } catch {
-      localStorage.removeItem("ridehub_user");
-      localStorage.removeItem("ridehub_guest");
-    }
-    setHydrated(true);
-  }, []);
-
-  // Listen for storage changes (other tabs / windows only — same-tab updates use context directly)
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === null) {
-        setUser(null);
-        setIsGuest(false);
-        return;
-      }
-      if (e.key === "ridehub_user") {
-        if (!e.newValue) {
-          setUser(null);
-          return;
-        }
-        try {
-          setUser(JSON.parse(e.newValue));
-        } catch {
-          localStorage.removeItem("ridehub_user");
-          localStorage.removeItem("ridehub_guest");
+    const hydrate = async () => {
+      try {
+        const isStoredGuest = localStorage.getItem("ridehub_guest") === "1";
+        const res = await fetch("/api/auth/me", { credentials: "include" });
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
+          setIsGuest(false);
+        } else if (isStoredGuest) {
+          setUser({ id: "guest", name: "Guest", email: "guest@ridehub.local", provider: "password" });
+          setIsGuest(true);
+        } else {
           setUser(null);
           setIsGuest(false);
         }
-      }
-      if (e.key === "ridehub_guest") {
-        setIsGuest(e.newValue === "1");
+      } catch {
+        if (localStorage.getItem("ridehub_guest") === "1") {
+          setUser({ id: "guest", name: "Guest", email: "guest@ridehub.local", provider: "password" });
+          setIsGuest(true);
+        }
+      } finally {
+        setHydrated(true);
       }
     };
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
+
+    hydrate();
   }, []);
 
-  const loginWithGoogle = (id: string, username: string, sessionToken: string) => {
-    const userData: User = { id, username, sessionToken };
-    setUser(userData);
+  const loginWithGoogle = (nextUser: User) => {
+    setUser(nextUser);
     setIsGuest(false);
-    localStorage.setItem("ridehub_user", JSON.stringify(userData));
   };
 
   const loginAsGuest = () => {
-    const guest: User = { id: "guest", username: "Guest", sessionToken: "" };
+    const guest: User = { id: "guest", name: "Guest", email: "guest@ridehub.local", provider: "password" };
     setUser(guest);
     setIsGuest(true);
-    localStorage.setItem("ridehub_user", JSON.stringify(guest));
     localStorage.setItem("ridehub_guest", "1");
   };
 
-  const login = async (username: string, password: string) => {
+  const login = async (email: string, password: string) => {
     try {
-      await wakeBackend();
-      const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), 10000);
-      const res = await fetch(`${API}/auth/login`, {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-        signal: ctrl.signal,
+        body: JSON.stringify({ email, password }),
+        credentials: "include",
       });
-      clearTimeout(t);
+      const data = await res.json().catch(() => null);
       if (!res.ok) return false;
-      const data = await res.json();
-      const userData: User = { id: data.id, username: data.username, sessionToken: data.session_token };
-      setUser(userData);
-      localStorage.setItem("ridehub_user", JSON.stringify(userData));
+      if (data?.user) {
+        setUser(data.user);
+        setIsGuest(false);
+      }
       return true;
     } catch {
       return false;
     }
   };
 
-  const signup = async (username: string, password: string) => {
+  const signup = async (name: string, email: string, password: string) => {
     try {
-      await wakeBackend();
-      const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), 10000);
-      const res = await fetch(`${API}/auth/signup`, {
+      const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-        signal: ctrl.signal,
+        body: JSON.stringify({ name, email, password }),
+        credentials: "include",
       });
-      clearTimeout(t);
+      const data = await res.json().catch(() => null);
       if (!res.ok) return false;
-      const data = await res.json();
-      const userData: User = { id: data.id, username: data.username, sessionToken: data.session_token };
-      setUser(userData);
-      localStorage.setItem("ridehub_user", JSON.stringify(userData));
+      if (data?.user) {
+        setUser(data.user);
+        setIsGuest(false);
+      }
       return true;
     } catch {
       return false;
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+    } catch {
+      // ignore network failures on logout
+    }
     setUser(null);
     setIsGuest(false);
-    localStorage.removeItem("ridehub_user");
     localStorage.removeItem("ridehub_guest");
   };
 
