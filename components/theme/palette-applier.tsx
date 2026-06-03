@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import { useTheme } from "next-themes";
+import { useEffect } from "react";
 
 const STORAGE_KEY = "ridehub_palette_id";
 
