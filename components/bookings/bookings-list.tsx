@@ -9,8 +9,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, Calendar, Clock, MapPin } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import API from '@/lib/api';
-
 interface BookingsListProps {
   type: BookingType;
   onSelectBooking: (booking: Booking) => void;
@@ -22,11 +20,9 @@ export function BookingsList({ type, onSelectBooking }: BookingsListProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.id || !user?.sessionToken) { setLoading(false); return; }
+    if (!user?.id) { setLoading(false); return; }
     setLoading(true);
-    fetch(`${API}/bookings/${user.id}`, {
-      headers: { "X-User-Id": user.id, "X-Session-Token": user.sessionToken },
-    })
+    fetch(`/api/bookings/${user.id}`)
       .then(r => r.json())
       .then((data: Booking[]) => {
         const filtered = data.filter(b =>
