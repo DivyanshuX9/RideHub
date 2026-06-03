@@ -2,6 +2,7 @@
 
 import { AuthProvider } from '@/components/auth/auth-context';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
+import { PaletteApplier } from '@/components/theme/palette-applier';
 import { Toaster } from '@/components/ui/toaster';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode } from 'react';
@@ -21,6 +22,7 @@ export function Providers({ children }: { children: ReactNode }) {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
+          <PaletteApplier />
           {children}
         </AuthProvider>
         <Toaster />
