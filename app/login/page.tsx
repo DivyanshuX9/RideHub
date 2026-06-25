@@ -1,5 +1,6 @@
 "use client";
 import { useAuth } from "@/components/auth/auth-context";
+import API from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -60,7 +61,7 @@ function AuthPageInner() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'}/auth/google`;
+    window.location.href = `${API}/auth/google`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
