@@ -57,7 +57,7 @@ export function PromotionsSlider() {
             <CarouselItem key={promo.id} className="sm:basis-1/2 lg:basis-1/3">
               <div className="p-2">
                 <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }}>
-                  <Card className="overflow-hidden border-0 shadow-md">
+                  <Card className="overflow-hidden border border-border/80 shadow-sm hover:shadow-md transition-shadow">
                     <div className="relative h-48 w-full">
                       <Image
                         src={promo.image}

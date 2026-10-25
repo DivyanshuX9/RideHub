@@ -8,7 +8,7 @@ import {
     TooltipTrigger
 } from '@/components/ui/tooltip';
 import { motion } from 'framer-motion';
-import { Bus, Clock, DollarSign, List, Map, Zap } from 'lucide-react';
+import { Bus, Clock, IndianRupee, List, Map, Zap } from 'lucide-react';
 
 interface FilterBarProps {
   activeFilter: 'fastest' | 'cheapest' | 'eco' | 'public';
@@ -61,7 +61,7 @@ export function FilterBar({
                 onClick={() => setActiveFilter('cheapest')}
                 className="shrink-0"
               >
-                <DollarSign className="h-4 w-4 mr-2" />
+                <IndianRupee className="h-4 w-4 mr-2" />
                 Cheapest
               </Button>
             </TooltipTrigger>

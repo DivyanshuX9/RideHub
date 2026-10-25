@@ -24,7 +24,7 @@ type PreferencesFormValues = z.infer<typeof formSchema>;
 const PALETTE_STORAGE_KEY = 'ridehub_palette_id';
 
 const PALETTE_PREVIEW_CLASSES = [
-  ['bg-[hsl(246_80%_60%)]', 'bg-[hsl(291_64%_82%)]', 'bg-[hsl(18_100%_80%)]', 'bg-[hsl(340_82%_85%)]', 'bg-[hsl(142_71%_70%)]'],
+  ['bg-[hsl(221.2_83.2%_53.3%)]', 'bg-[hsl(199_89%_48%)]', 'bg-[hsl(142_76%_36%)]', 'bg-[hsl(262_83%_58%)]', 'bg-[hsl(24_95%_53%)]'],
   ['bg-[hsl(14_90%_58%)]', 'bg-[hsl(36_100%_78%)]', 'bg-[hsl(320_82%_78%)]', 'bg-[hsl(280_65%_64%)]', 'bg-[hsl(198_92%_70%)]'],
   ['bg-[hsl(196_85%_42%)]', 'bg-[hsl(175_60%_76%)]', 'bg-[hsl(152_55%_66%)]', 'bg-[hsl(210_70%_70%)]', 'bg-[hsl(92_48%_58%)]'],
   ['bg-[hsl(155_60%_38%)]', 'bg-[hsl(168_62%_80%)]', 'bg-[hsl(186_85%_72%)]', 'bg-[hsl(120_45%_65%)]', 'bg-[hsl(198_88%_76%)]'],

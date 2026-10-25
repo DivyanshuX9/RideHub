@@ -18,7 +18,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%; /* crisp clean white */
+    --background: 210 40% 98%; /* soft cool slate-50 for contrast with white cards */
     --foreground: 222.2 84% 4.9%; /* deep slate text for high readability */
     --card: 0 0% 100%; /* clean white cards */
     --card-foreground: 222.2 84% 4.9%;

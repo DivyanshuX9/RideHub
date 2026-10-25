@@ -11,6 +11,7 @@ interface Props {
   fromLon: string;
   toLat: string;
   toLon: string;
+  polyline?: [number, number][];
 }
 
 const pinA = L.divIcon({
@@ -77,7 +78,7 @@ async function fetchRoadRoute(
   return null; // all hosts failed — caller draws straight line fallback
 }
 
-export default function LeafletMap({ from, to, fromLat, fromLon, toLat, toLon }: Props) {
+export default function LeafletMap({ from, to, fromLat, fromLon, toLat, toLon, polyline }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
 
@@ -113,7 +114,14 @@ export default function LeafletMap({ from, to, fromLat, fromLon, toLat, toLon }:
       L.marker(posA, { icon: pinA }).addTo(map).bindPopup(from);
       L.marker(posB, { icon: pinB }).addTo(map).bindPopup(to);
 
-      // Fetch real road route from OSRM directly
+      // 1. If backend provided route polyline (from Google Maps or OSRM), render it directly
+      if (polyline && polyline.length >= 2) {
+        L.polyline(polyline, { color: '#2563eb', weight: 5, opacity: 0.9 }).addTo(map);
+        map.fitBounds(polyline, { padding: [50, 50] });
+        return;
+      }
+
+      // 2. Otherwise fetch road route as client fallback
       const route = await fetchRoadRoute(posA, posB);
 
       if (!alive()) return;
@@ -121,18 +129,8 @@ export default function LeafletMap({ from, to, fromLat, fromLon, toLat, toLon }:
       if (route) {
         L.polyline(route.coords, { color: '#2563eb', weight: 5, opacity: 0.9 }).addTo(map);
         map.fitBounds(route.coords, { padding: [50, 50] });
-
-        if (alive()) {
-          const info = document.createElement('div');
-          info.className = 'leaflet-route-info absolute bottom-[52px] left-3 right-3 z-[1000] bg-card/90 backdrop-blur-sm p-2 rounded-lg border border-border text-xs pointer-events-none text-card-foreground shadow';
-          info.innerHTML =
-            `<span style="font-weight:600">Road distance:</span> ${route.distanceKm} km` +
-            ` &nbsp;|&nbsp; <span style="font-weight:600">ETA:</span> ~${route.durationMin} min`;
-          container.style.position = 'relative';
-          container.appendChild(info);
-        }
       } else {
-        // OSRM unavailable — straight dashed fallback
+        // 3. Straight dashed connection fallback
         L.polyline([posA, posB], { color: '#2563eb', weight: 4, dashArray: '8 6' }).addTo(map);
         map.fitBounds([posA, posB], { padding: [60, 60] });
       }
@@ -144,7 +142,7 @@ export default function LeafletMap({ from, to, fromLat, fromLon, toLat, toLon }:
       cancelled = true;
       if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
     };
-  }, [from, to, fromLat, fromLon, toLat, toLon]);
+  }, [from, to, fromLat, fromLon, toLat, toLon, polyline]);
 
   return <div ref={containerRef} style={{ height: '100%', width: '100%' }} />;
 }

@@ -30,7 +30,7 @@ export function BookingDetails({ booking, onClose }: BookingDetailsProps) {
       >
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center space-x-2">
-            {getIconByName(booking.service === 'uber' || booking.service === 'ola' ? 'car-front' : booking.service)}
+            {getIconByName(['uber', 'ola'].includes((booking.service || '').toLowerCase()) ? 'car-front' : (booking.service || '').toLowerCase())}
             <h2 className="text-lg font-semibold capitalize">
               {booking.service} {booking.ride_type} {booking.status === 'scheduled' ? 'Booking' : 'Ride'}
             </h2>
@@ -83,7 +83,7 @@ export function BookingDetails({ booking, onClose }: BookingDetailsProps) {
                 <div className="text-sm text-muted-foreground">Ride Info</div>
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2">
-                    {getIconByName(booking.service === 'uber' || booking.service === 'ola' ? 'car-front' : booking.service)}
+                    {getIconByName(['uber', 'ola'].includes((booking.service || '').toLowerCase()) ? 'car-front' : (booking.service || '').toLowerCase())}
                     <span>{booking.distance} km</span>
                   </div>
                   <div className="flex items-center space-x-2">

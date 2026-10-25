@@ -4,7 +4,9 @@ import { useAuth } from '@/components/auth/auth-context';
 import { Calendar, User } from 'lucide-react';
 
 export function ProfileInfo() {
-  const { user } = useAuth();
+  const { user, isGuest } = useAuth();
+  const displayName = isGuest ? 'Guest User' : user?.username || 'Guest';
+  const handle = isGuest ? 'guest' : user?.username || 'guest';
 
   return (
     <div className="flex flex-col items-center text-center">
@@ -12,8 +14,8 @@ export function ProfileInfo() {
         <User className="h-10 w-10 text-primary" />
       </div>
 
-      <h3 className="text-xl font-bold mb-1">{user?.username}</h3>
-      <p className="text-sm text-muted-foreground">@{user?.username}</p>
+      <h3 className="text-xl font-bold mb-1">{displayName}</h3>
+      <p className="text-sm text-muted-foreground">@{handle}</p>
 
       <div className="space-y-2 mt-4 w-full">
         <div className="flex items-center space-x-2 text-sm">

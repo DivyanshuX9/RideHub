@@ -59,13 +59,14 @@ function ResultsPageContent() {
   const [distanceKm, setDistanceKm]   = useState<number | undefined>();
   const [durationMin, setDurationMin] = useState<number | undefined>();
   const [isInterstate, setIsInterstate] = useState(false);
+  const [polyline, setPolyline]       = useState<[number, number][] | undefined>();
 
   // Fetch route info + rides from backend when coords are available
   useEffect(() => {
     if (!from || !to) return;
 
     async function fetchAll() {
-      // Route (road distance + interstate)
+      // Route (road distance + interstate + polyline)
       if (fromLat && fromLon && toLat && toLon) {
         try {
           const r = await fetch(`${API}/route/`, {
@@ -81,6 +82,9 @@ function ResultsPageContent() {
           setDistanceKm(d.distance_km);
           setDurationMin(d.duration_min);
           setIsInterstate(d.is_interstate);
+          if (d.polyline && Array.isArray(d.polyline) && d.polyline.length > 0) {
+            setPolyline(d.polyline);
+          }
         } catch { /* backend offline — skip */ }
       }
 
@@ -177,6 +181,7 @@ function ResultsPageContent() {
                       from={from} to={to}
                       fromLat={fromLat} fromLon={fromLon}
                       toLat={toLat} toLon={toLon}
+                      polyline={polyline}
                     />
                   </motion.div>
                 )}

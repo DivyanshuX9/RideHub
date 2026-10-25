@@ -25,7 +25,10 @@ export function BookingsList({ type, onSelectBooking }: BookingsListProps) {
     if (!user?.id || !user?.sessionToken) { setLoading(false); return; }
     setLoading(true);
     fetch(`${API}/bookings/${user.id}`, {
-      headers: { 'X-User-Id': user.id },
+      headers: {
+        'X-User-Id': user.id,
+        ...(user.sessionToken ? { Authorization: `Bearer ${user.sessionToken}` } : {}),
+      },
     })
       .then(r => r.json())
       .then((data: Booking[]) => {
@@ -38,7 +41,7 @@ export function BookingsList({ type, onSelectBooking }: BookingsListProps) {
       })
       .catch(() => setBookings([]))
       .finally(() => setLoading(false));
-  }, [type, user?.id]);
+  }, [type, user?.id, user?.sessionToken]);
   
   if (loading) {
     return (

@@ -86,7 +86,7 @@ export function RideOptions() {
           transition={{ duration: 0.2 }}
           style={{ zIndex: 1 }}
         >
-          <Card className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-shadow duration-300 h-full">
+          <Card className="overflow-hidden border border-border/80 shadow-sm hover:shadow-md transition-shadow duration-300 h-full">
             <CardContent className="p-6 flex flex-col items-center text-center h-full">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                 <type.icon className="h-6 w-6 text-primary" />

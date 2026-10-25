@@ -38,13 +38,6 @@ export function HeroSection() {
             Compare prices, ETAs, and book rides across all services in seconds.
             Your one-stop solution for seamless urban mobility.
           </motion.p>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-          >
-
-          </motion.div>
         </motion.div>
       </div>
       {/* Wave overlay at bottom — block SVG + leading-none avoids sub-pixel hairline under wave at non-100% zoom */}
