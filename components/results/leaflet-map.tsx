@@ -124,11 +124,7 @@ export default function LeafletMap({ from, to, fromLat, fromLon, toLat, toLon }:
 
         if (alive()) {
           const info = document.createElement('div');
-          info.style.cssText =
-            'position:absolute;bottom:52px;left:12px;right:12px;z-index:1000;' +
-            'background:rgba(255,255,255,0.93);backdrop-filter:blur(4px);' +
-            'padding:8px 12px;border-radius:8px;border:1px solid #e2e8f0;' +
-            'font-size:12px;pointer-events:none;';
+          info.className = 'leaflet-route-info absolute bottom-[52px] left-3 right-3 z-[1000] bg-card/90 backdrop-blur-sm p-2 rounded-lg border border-border text-xs pointer-events-none text-card-foreground shadow';
           info.innerHTML =
             `<span style="font-weight:600">Road distance:</span> ${route.distanceKm} km` +
             ` &nbsp;|&nbsp; <span style="font-weight:600">ETA:</span> ~${route.durationMin} min`;

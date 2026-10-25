@@ -373,7 +373,7 @@ export function SearchBar({
                                 <div className="text-xs text-muted-foreground">{rec.estimatedTime} min • {rec.distance} km</div>
                               </div>
                             </div>
-                            <div className="font-medium">${rec.estimatedPrice.toFixed(2)}</div>
+                            <div className="font-medium">₹{rec.estimatedPrice.toFixed(2)}</div>
                           </div>
                         </CardContent>
                       </Card>

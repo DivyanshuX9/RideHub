@@ -43,20 +43,7 @@ export function HeroSection() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.6, duration: 0.5 }}
           >
-            {/* <div className="grid grid-cols-3 gap-4 md:gap-6 max-w-md mx-auto">
-              {['Uber', 'Ola', 'Rapido','Metro','Bus','Trams'].map((service, index) => (
-                <motion.div
-                  key={service}
-                  className="flex flex-col items-center justify-center p-3 md:p-4 bg-card rounded-xl shadow-sm hover:shadow-md transition-shadow"
-                  whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8 + index * 0.1 }}
-                >
-                  <span className="font-medium text-sm md:text-base">{service}</span>
-                </motion.div>
-              ))}
-            </div> */}
+
           </motion.div>
         </motion.div>
       </div>

@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 30, 32, 34;
-  --background-start-rgb: 250, 248, 245;
-  --background-end-rgb: 255, 255, 255;
+  --foreground-rgb: 15, 23, 42;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 248, 250, 252;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -18,33 +18,33 @@
 
 @layer base {
   :root {
-    --background: 36 56% 98%; /* soft beige */
-    --foreground: 230 15% 18%; /* dark blue-gray for text */
-    --card: 0 0% 100%; /* white */
-    --card-foreground: 230 15% 18%;
-    --popover: 36 56% 99%; /* lighter beige */
-    --popover-foreground: 230 15% 18%;
-    --primary: 246 80% 60%; /* vibrant blue */
-    --primary-foreground: 0 0% 100%; /* white */
-    --secondary: 291 64% 82%; /* soft purple */
-    --secondary-foreground: 230 15% 18%;
-    --muted: 36 56% 92%; /* muted beige */
-    --muted-foreground: 230 15% 40%;
-    --accent: 18 100% 80%; /* soft orange */
-    --accent-foreground: 230 15% 18%;
-    --info: 200 100% 85%; /* light blue info */
-    --success: 142 71% 70%; /* soft green for success only */
-    --pink: 340 82% 85%; /* soft pink for badges, etc. */
+    --background: 0 0% 100%; /* crisp clean white */
+    --foreground: 222.2 84% 4.9%; /* deep slate text for high readability */
+    --card: 0 0% 100%; /* clean white cards */
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%; /* modern energetic indigo blue (#2563eb) */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%; /* soft neutral slate */
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%; /* soft neutral muted */
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%; /* subtle clean hover state */
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --info: 217.2 91.2% 59.8%;
+    --success: 142.1 76.2% 36.3%;
+    --pink: 330 81% 60%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 246 80% 90%; /* blue border */
-    --input: 246 80% 90%;
-    --ring: 246 80% 60%;
-    --chart-1: 246 80% 60%; /* blue */
-    --chart-2: 291 64% 70%; /* purple */
-    --chart-3: 18 100% 80%; /* orange */
-    --chart-4: 340 82% 85%; /* pink */
-    --chart-5: 142 71% 70%; /* green */
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%; /* subtle crisp border */
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --chart-1: 221.2 83.2% 53.3%;
+    --chart-2: 199 89% 48%;
+    --chart-3: 142 76% 36%;
+    --chart-4: 262 83% 58%;
+    --chart-5: 24 95% 53%;
     --radius: 0.5rem;
   }
   .dark {

@@ -7,6 +7,7 @@ import { getIconByName } from '@/lib/mock-data';
 import { Booking } from '@/types/booking';
 import { Calendar, Clock, MapPin } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import API from '@/lib/api';
 
 export function RecentRides() {
   const { user } = useAuth();
@@ -15,12 +16,17 @@ export function RecentRides() {
 
   useEffect(() => {
     if (!user?.id) { setLoading(false); return; }
-    fetch(`/api/bookings/${user.id}`)
-      .then(r => r.json())
-      .then((data: Booking[]) => setRides(data.filter(b => b.status === 'completed').slice(0, 3)))
+    fetch(`${API}/bookings/${user.id}`, {
+      headers: {
+        'X-User-Id': user.id,
+        ...(user.sessionToken ? { Authorization: `Bearer ${user.sessionToken}` } : {}),
+      },
+    })
+      .then(r => r.ok ? r.json() : [])
+      .then((data: Booking[]) => setRides(Array.isArray(data) ? data.filter(b => b.status === 'completed').slice(0, 3) : []))
       .catch(() => setRides([]))
       .finally(() => setLoading(false));
-  }, [user?.id]);
+  }, [user?.id, user?.sessionToken]);
 
   if (loading) {
     return (

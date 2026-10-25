@@ -10,10 +10,10 @@ export type ColorPalette = {
 };
 
 export const COLOR_PALETTES: ColorPalette[] = [
-  { id: 'aurora', name: 'Aurora', description: 'Cool electric blue with violet accents', primary: '246 80% 60%', secondary: '291 64% 82%', accent: '18 100% 80%', ring: '246 80% 60%', chart: ['246 80% 60%', '291 64% 70%', '18 100% 80%', '340 82% 85%', '142 71% 70%'] },
-  { id: 'sunset', name: 'Sunset', description: 'Warm coral and amber tones', primary: '14 90% 58%', secondary: '36 100% 78%', accent: '320 82% 78%', ring: '14 90% 58%', chart: ['14 90% 58%', '36 100% 62%', '320 82% 78%', '280 65% 64%', '198 92% 70%'] },
-  { id: 'ocean', name: 'Ocean', description: 'Deep teal and sea glass', primary: '196 85% 42%', secondary: '175 60% 76%', accent: '152 55% 66%', ring: '196 85% 42%', chart: ['196 85% 42%', '175 60% 58%', '152 55% 66%', '210 70% 70%', '92 48% 58%'] },
-  { id: 'mint', name: 'Mint', description: 'Fresh green with soft cyan', primary: '155 60% 38%', secondary: '168 62% 80%', accent: '186 85% 72%', ring: '155 60% 38%', chart: ['155 60% 38%', '168 62% 62%', '186 85% 72%', '120 45% 65%', '198 88% 76%'] },
+  { id: 'aurora', name: 'Aurora', description: 'Cool energetic blue with clean slate accents', primary: '221.2 83.2% 53.3%', secondary: '210 40% 96.1%', accent: '210 40% 96.1%', ring: '221.2 83.2% 53.3%', chart: ['221.2 83.2% 53.3%', '199 89% 48%', '142 76% 36%', '262 83% 58%', '24 95% 53%'] },
+  { id: 'sunset', name: 'Sunset', description: 'Warm coral and amber tones', primary: '14 90% 58%', secondary: '24 80% 96%', accent: '24 80% 96%', ring: '14 90% 58%', chart: ['14 90% 58%', '36 100% 62%', '320 82% 78%', '280 65% 64%', '198 92% 70%'] },
+  { id: 'ocean', name: 'Ocean', description: 'Deep teal and sea glass', primary: '196 85% 42%', secondary: '190 60% 96%', accent: '190 60% 96%', ring: '196 85% 42%', chart: ['196 85% 42%', '175 60% 58%', '152 55% 66%', '210 70% 70%', '92 48% 58%'] },
+  { id: 'mint', name: 'Mint', description: 'Fresh green with soft cyan', primary: '155 60% 38%', secondary: '150 50% 96%', accent: '150 50% 96%', ring: '155 60% 38%', chart: ['155 60% 38%', '168 62% 62%', '186 85% 72%', '120 45% 65%', '198 88% 76%'] },
   { id: 'berry', name: 'Berry', description: 'Rich berry and magenta', primary: '324 72% 52%', secondary: '350 80% 80%', accent: '18 100% 79%', ring: '324 72% 52%', chart: ['324 72% 52%', '350 80% 68%', '18 100% 79%', '280 65% 63%', '342 78% 75%'] },
   { id: 'forest', name: 'Forest', description: 'Grounded green and moss', primary: '130 42% 36%', secondary: '92 30% 74%', accent: '44 82% 68%', ring: '130 42% 36%', chart: ['130 42% 36%', '92 30% 56%', '44 82% 68%', '155 45% 58%', '24 72% 60%'] },
   { id: 'midnight', name: 'Midnight', description: 'Blue-black with cyan highlights', primary: '222 82% 56%', secondary: '210 28% 72%', accent: '184 85% 68%', ring: '222 82% 56%', chart: ['222 82% 56%', '184 85% 56%', '210 28% 58%', '268 62% 66%', '338 78% 66%'] },

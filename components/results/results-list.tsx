@@ -10,8 +10,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { filterRideOptions } from '@/lib/mock-data';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bus, Car, Clock, IndianRupee, Train, Zap } from 'lucide-react';
+import { Bus, Car, Clock, IndianRupee, Loader2, Train, Zap, Check } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import API from '@/lib/api';
 
 interface RideOption {
   id: string; service: string; type: string;
@@ -65,7 +67,9 @@ function getMockRides(distanceKm?: number): RideOption[] {
 
 export function ResultsList({ filter, rides, distanceKm, isInterstate = false, from = '', to = '' }: ResultsListProps) {
   const { user } = useAuth();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
+  const [bookingStatus, setBookingStatus] = useState<Record<string, 'idle' | 'booking' | 'booked'>>({});
   useEffect(() => {
     setIsLoading(true);
     const t = setTimeout(() => setIsLoading(false), 800);
@@ -157,30 +161,53 @@ export function ResultsList({ filter, rides, distanceKm, isInterstate = false, f
                       </div>
                       <Button
                         size="sm"
+                        disabled={bookingStatus[option.id] === 'booking' || bookingStatus[option.id] === 'booked'}
                         onClick={async () => {
-                          if (!user?.id || !user?.sessionToken) return;
-                          const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
-                          await fetch(`${API}/bookings/`, {
-                            method: 'POST',
-                            headers: {
-                              'Content-Type': 'application/json',
-                              'X-User-Id': user.id,
-                            },
-                            body: JSON.stringify({
-                              user_id: user.id,
-                              from_location: from,
-                              to_location: to,
-                              service: option.service,
-                              ride_type: option.type,
-                              price: option.estimated_price,
-                              distance: option.distance,
-                              duration: option.estimated_time,
-                              status: 'scheduled',
-                            }),
-                          });
+                          if (!user?.id || !user?.sessionToken) {
+                            router.push('/login');
+                            return;
+                          }
+                          setBookingStatus(prev => ({ ...prev, [option.id]: 'booking' }));
+                          try {
+                            const res = await fetch(`${API}/bookings/`, {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                                'X-User-Id': user.id,
+                                'Authorization': `Bearer ${user.sessionToken}`,
+                              },
+                              body: JSON.stringify({
+                                user_id: user.id,
+                                from_location: from || 'Pickup Location',
+                                to_location: to || 'Dropoff Location',
+                                service: option.service,
+                                ride_type: option.type,
+                                price: option.estimated_price,
+                                distance: option.distance,
+                                duration: option.estimated_time,
+                                status: 'scheduled',
+                              }),
+                            });
+                            if (res.ok) {
+                              setBookingStatus(prev => ({ ...prev, [option.id]: 'booked' }));
+                              setTimeout(() => {
+                                router.push('/bookings');
+                              }, 1200);
+                            } else {
+                              setBookingStatus(prev => ({ ...prev, [option.id]: 'idle' }));
+                            }
+                          } catch {
+                            setBookingStatus(prev => ({ ...prev, [option.id]: 'idle' }));
+                          }
                         }}
                       >
-                        Book Now
+                        {bookingStatus[option.id] === 'booking' ? (
+                          <span className="flex items-center gap-1.5"><Loader2 className="h-3.5 w-3.5 animate-spin" /> Booking...</span>
+                        ) : bookingStatus[option.id] === 'booked' ? (
+                          <span className="flex items-center gap-1.5 text-green-600"><Check className="h-3.5 w-3.5" /> Booked!</span>
+                        ) : (
+                          'Book Now'
+                        )}
                       </Button>
                     </div>
                   </div>
