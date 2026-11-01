@@ -158,7 +158,7 @@ export function SearchBar({
     setToFocused(false);
   };
 
-  const useCurrentLocation = () => {
+  const handleCurrentLocation = () => {
     if (!navigator.geolocation) return;
     setLocatingFrom(true);
     navigator.geolocation.getCurrentPosition(
@@ -211,7 +211,7 @@ export function SearchBar({
                   <Button
                     type="button" variant="ghost" size="icon"
                     className="absolute right-1 top-1"
-                    onClick={useCurrentLocation}
+                    onClick={handleCurrentLocation}
                     disabled={locatingFrom}
                   >
                     {locatingFrom ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
@@ -228,7 +228,7 @@ export function SearchBar({
                       <div className="p-1 max-h-56 overflow-y-auto">
                         <div
                           className="px-3 py-2 text-sm rounded-md hover:bg-accent cursor-pointer flex items-center gap-2 border-b border-border mb-1"
-                          onMouseDown={(e) => { e.preventDefault(); useCurrentLocation(); setFromFocused(false); }}
+                          onMouseDown={(e) => { e.preventDefault(); handleCurrentLocation(); setFromFocused(false); }}
                         >
                           {locatingFrom ? <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" /> : <LocateFixed className="h-3.5 w-3.5 text-primary" />}
                           <span className="font-medium text-primary">My location</span>

@@ -60,6 +60,7 @@ function ResultsPageContent() {
   const [durationMin, setDurationMin] = useState<number | undefined>();
   const [isInterstate, setIsInterstate] = useState(false);
   const [polyline, setPolyline]       = useState<[number, number][] | undefined>();
+  const [provider, setProvider]       = useState<string | undefined>();
 
   // Fetch route info + rides from backend when coords are available
   useEffect(() => {
@@ -78,12 +79,21 @@ function ResultsPageContent() {
               from_name: from, to_name: to,
             }),
           });
-          const d = await r.json();
-          setDistanceKm(d.distance_km);
-          setDurationMin(d.duration_min);
-          setIsInterstate(d.is_interstate);
-          if (d.polyline && Array.isArray(d.polyline) && d.polyline.length > 0) {
-            setPolyline(d.polyline);
+          if (r.ok) {
+            const d = await r.json();
+            if (typeof d?.distance_km === 'number') {
+              setDistanceKm(d.distance_km);
+            }
+            if (typeof d?.duration_min === 'number') {
+              setDurationMin(d.duration_min);
+            }
+            setIsInterstate(!!d?.is_interstate);
+            if (d?.provider) {
+              setProvider(d.provider);
+            }
+            if (d?.polyline && Array.isArray(d.polyline) && d.polyline.length > 0) {
+              setPolyline(d.polyline);
+            }
           }
         } catch { /* backend offline — skip */ }
       }
@@ -101,8 +111,12 @@ function ResultsPageContent() {
             to_lon:   toLon   ? parseFloat(toLon)   : null,
           }),
         });
-        const d: RideOption[] = await r.json();
-        setRides(d);
+        if (r.ok) {
+          const d: RideOption[] = await r.json();
+          if (Array.isArray(d)) {
+            setRides(d);
+          }
+        }
       } catch { /* backend offline */ }
     }
 
@@ -162,10 +176,15 @@ function ResultsPageContent() {
           ) : (
             <>
               {distanceKm && (
-                <div className="mb-4 text-sm text-muted-foreground">
-                  Road distance: <span className="font-semibold text-foreground">{distanceKm} km</span>
-                  {durationMin && <> &nbsp;·&nbsp; ETA: <span className="font-semibold text-foreground">~{durationMin} min</span></>}
-                  {isInterstate && <span className="ml-3 text-amber-600 font-medium">· Inter-state route</span>}
+                <div className="mb-4 text-sm text-muted-foreground flex items-center flex-wrap gap-2">
+                  <span>Road distance: <span className="font-semibold text-foreground">{distanceKm} km</span></span>
+                  {durationMin && <span>&nbsp;·&nbsp; ETA: <span className="font-semibold text-foreground">~{durationMin} min</span></span>}
+                  {isInterstate && <span className="text-amber-600 font-medium">· Inter-state route</span>}
+                  {provider && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-secondary text-secondary-foreground border border-border">
+                      via {provider === 'google' ? 'Google Maps' : provider === 'tomtom' ? 'TomTom' : provider === 'here' ? 'HERE' : provider === 'haversine' ? 'Direct Estimate' : provider.toUpperCase()}
+                    </span>
+                  )}
                 </div>
               )}
               <FilterBar

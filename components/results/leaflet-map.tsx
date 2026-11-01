@@ -35,16 +35,189 @@ async function geocode(query: string): Promise<[number, number]> {
   return [20.5937, 78.9629];
 }
 
+// HERE Flexible Polyline Decoding Table
+const HERE_DECODING_TABLE = [
+  62, -1, -1, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1,
+  -1, -1, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+  15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, 63,
+  -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+  41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51,
+];
+
+function decodeFlexiblePolyline(encoded: string): [number, number][] {
+  const result: [number, number][] = [];
+  let index = 0;
+  const length = encoded.length;
+
+  function decodeUnsigned(): number | null {
+    let res = 0;
+    let shift = 0;
+    let readAny = false;
+    while (index < length) {
+      const charCode = encoded.charCodeAt(index++) - 45;
+      if (charCode < 0 || charCode >= HERE_DECODING_TABLE.length) return null;
+      const val = HERE_DECODING_TABLE[charCode];
+      if (val < 0) return null;
+      readAny = true;
+      res |= (val & 0x1f) << shift;
+      if ((val & 0x20) === 0) return res;
+      shift += 5;
+    }
+    return readAny ? res : null;
+  }
+
+  function toSigned(val: number): number {
+    return (val & 1) ? ~(val >> 1) : (val >> 1);
+  }
+
+  if (index >= length) return result;
+  const version = decodeUnsigned();
+  if (version !== 1) return result;
+
+  const headerVal = decodeUnsigned();
+  if (headerVal === null) return result;
+  const precision = headerVal & 15;
+  const thirdDim = (headerVal >> 4) & 7;
+  const factor = Math.pow(10, precision);
+  const decPlaces = Math.max(5, precision);
+  const rounder = Math.pow(10, decPlaces);
+
+  let lastLat = 0;
+  let lastLng = 0;
+
+  while (index < length) {
+    const rawLat = decodeUnsigned();
+    if (rawLat === null) break;
+    const rawLng = decodeUnsigned();
+    if (rawLng === null) break;
+    lastLat += toSigned(rawLat);
+    lastLng += toSigned(rawLng);
+    if (thirdDim) {
+      decodeUnsigned();
+    }
+    result.push([
+      Math.round((lastLat / factor) * rounder) / rounder,
+      Math.round((lastLng / factor) * rounder) / rounder,
+    ]);
+  }
+
+  return result;
+}
+
+// Client-side circuit breaker cooldown for rate-limited / exhausted providers
+const clientCooldowns: Record<string, number> = {};
+const CLIENT_COOLDOWN_MS = 60000;
+
+function isClientOnCooldown(provider: string): boolean {
+  return Date.now() < (clientCooldowns[provider] || 0);
+}
+
+function markClientExhausted(provider: string) {
+  clientCooldowns[provider] = Date.now() + CLIENT_COOLDOWN_MS;
+}
+
+function clearClientCooldown(provider: string) {
+  delete clientCooldowns[provider];
+}
+
 // OSRM hosts to try in order — fallback if one resets
 const OSRM_HOSTS = [
   'https://router.project-osrm.org',
   'https://routing.openstreetmap.de',
 ];
 
-async function fetchRoadRoute(
-  posA: [number, number],
-  posB: [number, number]
-): Promise<{ coords: [number, number][]; distanceKm: number; durationMin: number } | null> {
+interface RouteResult {
+  coords: [number, number][];
+  distanceKm: number;
+  durationMin: number;
+}
+
+async function fetchTomTomClientRoute(posA: [number, number], posB: [number, number]): Promise<RouteResult | null> {
+  const tomtomKey = process.env.NEXT_PUBLIC_TOMTOM_API_KEY || '';
+  if (!tomtomKey || isClientOnCooldown('tomtom')) return null;
+
+  try {
+    const url = `https://api.tomtom.com/routing/1/calculateRoute/${posA[0]},${posA[1]}:${posB[0]},${posB[1]}/json?key=${tomtomKey}&traffic=false&travelMode=car`;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+
+    if (res.ok) {
+      const data = await res.json();
+      const route = data?.routes?.[0];
+      if (route) {
+        const coords: [number, number][] = [];
+        for (const leg of route.legs || []) {
+          for (const pt of leg.points || []) {
+            coords.push([pt.latitude, pt.longitude]);
+          }
+        }
+        if (coords.length > 0) {
+          clearClientCooldown('tomtom');
+          return {
+            coords,
+            distanceKm: parseFloat(((route.summary?.lengthInMeters || 0) / 1000).toFixed(1)),
+            durationMin: Math.max(1, Math.round((route.summary?.travelTimeInSeconds || 0) / 60)),
+          };
+        }
+      }
+    } else if ([429, 403, 401, 402].includes(res.status)) {
+      markClientExhausted('tomtom');
+    }
+  } catch {
+    // TomTom network / timeout error
+  }
+  return null;
+}
+
+async function fetchHereClientRoute(posA: [number, number], posB: [number, number]): Promise<RouteResult | null> {
+  const hereKey = process.env.NEXT_PUBLIC_HERE_API_KEY || '';
+  if (!hereKey || isClientOnCooldown('here')) return null;
+
+  try {
+    const url = `https://router.hereapi.com/v8/routes?transportMode=car&origin=${posA[0]},${posA[1]}&destination=${posB[0]},${posB[1]}&return=summary,polyline&apiKey=${hereKey}`;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+
+    if (res.ok) {
+      const data = await res.json();
+      const route = data?.routes?.[0];
+      if (route?.sections?.length) {
+        let totalLength = 0;
+        let totalDuration = 0;
+        const coords: [number, number][] = [];
+        for (const s of route.sections) {
+          totalLength += s.summary?.length || 0;
+          totalDuration += s.summary?.duration || 0;
+          if (s.polyline) {
+            coords.push(...decodeFlexiblePolyline(s.polyline));
+          }
+        }
+        if (coords.length > 0) {
+          clearClientCooldown('here');
+          return {
+            coords,
+            distanceKm: parseFloat((totalLength / 1000).toFixed(1)),
+            durationMin: Math.max(1, Math.round(totalDuration / 60)),
+          };
+        }
+      }
+    } else if ([429, 403, 401, 402].includes(res.status)) {
+      markClientExhausted('here');
+    }
+  } catch {
+    // HERE network / timeout error
+  }
+  return null;
+}
+
+async function fetchOsrmClientRoute(posA: [number, number], posB: [number, number]): Promise<RouteResult | null> {
+  if (isClientOnCooldown('osrm')) return null;
+
+  let allExhausted = true;
   for (const host of OSRM_HOSTS) {
     try {
       const url =
@@ -53,29 +226,66 @@ async function fetchRoadRoute(
         `?overview=full&geometries=geojson`;
 
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 8000); // 8s timeout
-
+      const timer = setTimeout(() => controller.abort(), 6000);
       const res = await fetch(url, { signal: controller.signal });
       clearTimeout(timer);
 
-      const data = await res.json();
-      if (data.code !== 'Ok' || !data.routes?.[0]) continue;
-
-      const route = data.routes[0];
-      const coords: [number, number][] = route.geometry.coordinates.map(
-        ([lon, lat]: [number, number]) => [lat, lon]
-      );
-
-      return {
-        coords,
-        distanceKm: parseFloat((route.distance / 1000).toFixed(1)),
-        durationMin: Math.max(1, Math.round(route.duration / 60)),
-      };
+      if (res.ok) {
+        const data = await res.json();
+        if (data.code === 'Ok' && data.routes?.[0]) {
+          const route = data.routes[0];
+          const coords: [number, number][] = route.geometry.coordinates.map(
+            ([lon, lat]: [number, number]) => [lat, lon]
+          );
+          clearClientCooldown('osrm');
+          return {
+            coords,
+            distanceKm: parseFloat((route.distance / 1000).toFixed(1)),
+            durationMin: Math.max(1, Math.round(route.duration / 60)),
+          };
+        }
+      } else if (res.status === 429 || res.status === 503) {
+        continue;
+      } else {
+        allExhausted = false;
+      }
     } catch {
-      continue; // try next host
+      continue;
     }
   }
-  return null; // all hosts failed — caller draws straight line fallback
+  if (allExhausted) {
+    markClientExhausted('osrm');
+  }
+  return null;
+}
+
+function getClientRoutingOrder(): string[] {
+  const raw = process.env.NEXT_PUBLIC_ROUTING_PROVIDER_ORDER || 'tomtom,here,osrm';
+  const list = raw.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  for (const fb of ['tomtom', 'here', 'osrm']) {
+    if (!list.includes(fb)) list.push(fb);
+  }
+  return list;
+}
+
+async function fetchRoadRoute(
+  posA: [number, number],
+  posB: [number, number]
+): Promise<RouteResult | null> {
+  const order = getClientRoutingOrder();
+  for (const p of order) {
+    if (p === 'tomtom') {
+      const r = await fetchTomTomClientRoute(posA, posB);
+      if (r) return r;
+    } else if (p === 'here') {
+      const r = await fetchHereClientRoute(posA, posB);
+      if (r) return r;
+    } else if (p === 'osrm') {
+      const r = await fetchOsrmClientRoute(posA, posB);
+      if (r) return r;
+    }
+  }
+  return null;
 }
 
 export default function LeafletMap({ from, to, fromLat, fromLon, toLat, toLon, polyline }: Props) {
