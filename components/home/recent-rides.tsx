@@ -15,11 +15,15 @@ export function RecentRides() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.id) { setLoading(false); return; }
+    if (!user?.id || user.id === 'guest' || !user.sessionToken) {
+      setLoading(false);
+      setRides([]);
+      return;
+    }
     fetch(`${API}/bookings/${user.id}`, {
       headers: {
         'X-User-Id': user.id,
-        ...(user.sessionToken ? { Authorization: `Bearer ${user.sessionToken}` } : {}),
+        Authorization: `Bearer ${user.sessionToken}`,
       },
     })
       .then(r => r.ok ? r.json() : [])

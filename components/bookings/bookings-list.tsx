@@ -22,7 +22,7 @@ export function BookingsList({ type, onSelectBooking }: BookingsListProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.id || !user?.sessionToken) { setLoading(false); return; }
+    if (!user?.id || user.id === 'guest' || !user?.sessionToken) { setLoading(false); return; }
     setLoading(true);
     fetch(`${API}/bookings/${user.id}`, {
       headers: {
