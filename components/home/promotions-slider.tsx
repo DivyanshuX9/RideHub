@@ -42,6 +42,8 @@ export function PromotionsSlider() {
                         src={promo.image}
                         alt={promo.title}
                         fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 384px"
+                        quality={75}
                         className="object-cover"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
