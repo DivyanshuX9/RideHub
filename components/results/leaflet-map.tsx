@@ -3,6 +3,7 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect, useRef } from 'react';
+import API from '@/lib/api';
 
 interface Props {
   from: string;
@@ -226,7 +227,7 @@ async function fetchOsrmClientRoute(posA: [number, number], posB: [number, numbe
         `?overview=full&geometries=geojson`;
 
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 6000);
+      const timer = setTimeout(() => controller.abort(), 12000);
       const res = await fetch(url, { signal: controller.signal });
       clearTimeout(timer);
 
@@ -270,8 +271,36 @@ function getClientRoutingOrder(): string[] {
 
 async function fetchRoadRoute(
   posA: [number, number],
-  posB: [number, number]
+  posB: [number, number],
+  fromName?: string,
+  toName?: string
 ): Promise<RouteResult | null> {
+  // 1. Try backend route API first (which has server-side TomTom / Google Maps keys)
+  try {
+    const res = await fetch(`${API}/route/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from_lat: posA[0], from_lon: posA[1],
+        to_lat:   posB[0], to_lon:   posB[1],
+        from_name: fromName || '', to_name: toName || '',
+      }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.polyline && Array.isArray(data.polyline) && data.polyline.length >= 2) {
+        return {
+          coords: data.polyline,
+          distanceKm: data.distance_km || 0,
+          durationMin: data.duration_min || 0,
+        };
+      }
+    }
+  } catch {
+    // backend unavailable — continue to client providers
+  }
+
+  // 2. Client-side failover chain (TomTom -> HERE -> OSRM)
   const order = getClientRoutingOrder();
   for (const p of order) {
     if (p === 'tomtom') {
@@ -331,8 +360,8 @@ export default function LeafletMap({ from, to, fromLat, fromLon, toLat, toLon, p
         return;
       }
 
-      // 2. Otherwise fetch road route as client fallback
-      const route = await fetchRoadRoute(posA, posB);
+      // 2. Otherwise fetch road route as client/backend fallback
+      const route = await fetchRoadRoute(posA, posB, from, to);
 
       if (!alive()) return;
 

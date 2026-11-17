@@ -62,24 +62,55 @@ function ResultsPageContent() {
   const [polyline, setPolyline]       = useState<[number, number][] | undefined>();
   const [provider, setProvider]       = useState<string | undefined>();
 
-  // Fetch route info + rides from backend when coords are available
+  // Fetch route info + rides from backend when coords are available (with geocoding fallback for PC search)
   useEffect(() => {
     if (!from || !to) return;
+    let cancelled = false;
 
     async function fetchAll() {
+      let fLat = fromLat ? parseFloat(fromLat) : null;
+      let fLon = fromLon ? parseFloat(fromLon) : null;
+      let tLat = toLat ? parseFloat(toLat) : null;
+      let tLon = toLon ? parseFloat(toLon) : null;
+
+      // Geocoding fallback if coordinates weren't supplied in query params (e.g. PC keyboard enter)
+      if (fLat === null || fLon === null) {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(from)}&format=json&limit=1`, { headers: { 'Accept-Language': 'en' } });
+          const d = await res.json();
+          if (d?.[0]) {
+            fLat = parseFloat(d[0].lat);
+            fLon = parseFloat(d[0].lon);
+          }
+        } catch { /* ignore */ }
+      }
+
+      if (tLat === null || tLon === null) {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(to)}&format=json&limit=1`, { headers: { 'Accept-Language': 'en' } });
+          const d = await res.json();
+          if (d?.[0]) {
+            tLat = parseFloat(d[0].lat);
+            tLon = parseFloat(d[0].lon);
+          }
+        } catch { /* ignore */ }
+      }
+
+      if (cancelled) return;
+
       // Route (road distance + interstate + polyline)
-      if (fromLat && fromLon && toLat && toLon) {
+      if (fLat !== null && fLon !== null && tLat !== null && tLon !== null) {
         try {
           const r = await fetch(`${API}/route/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              from_lat: parseFloat(fromLat), from_lon: parseFloat(fromLon),
-              to_lat:   parseFloat(toLat),   to_lon:   parseFloat(toLon),
+              from_lat: fLat, from_lon: fLon,
+              to_lat:   tLat, to_lon:   tLon,
               from_name: from, to_name: to,
             }),
           });
-          if (r.ok) {
+          if (r.ok && !cancelled) {
             const d = await r.json();
             if (typeof d?.distance_km === 'number') {
               setDistanceKm(d.distance_km);
@@ -105,13 +136,13 @@ function ResultsPageContent() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             from_location: from, to_location: to,
-            from_lat: fromLat ? parseFloat(fromLat) : null,
-            from_lon: fromLon ? parseFloat(fromLon) : null,
-            to_lat:   toLat   ? parseFloat(toLat)   : null,
-            to_lon:   toLon   ? parseFloat(toLon)   : null,
+            from_lat: fLat,
+            from_lon: fLon,
+            to_lat:   tLat,
+            to_lon:   tLon,
           }),
         });
-        if (r.ok) {
+        if (r.ok && !cancelled) {
           const d: RideOption[] = await r.json();
           if (Array.isArray(d)) {
             setRides(d);
@@ -121,6 +152,7 @@ function ResultsPageContent() {
     }
 
     fetchAll();
+    return () => { cancelled = true; };
   }, [from, to, fromLat, fromLon, toLat, toLon]);
 
   const handleSearch = (searchFrom: string, searchTo: string) => {

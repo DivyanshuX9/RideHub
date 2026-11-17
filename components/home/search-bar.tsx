@@ -143,11 +143,22 @@ export function SearchBar({
     setShowRecommendations(true);
     if (onSearch) onSearch(from, to);
 
+    // If user typed on PC and pressed Enter without clicking suggestion:
+    let resolvedFromCoords = fromCoords;
+    let resolvedToCoords = toCoords;
+
+    if (!resolvedFromCoords && fromResults.length > 0) {
+      resolvedFromCoords = { lat: fromResults[0].lat, lon: fromResults[0].lon };
+    }
+    if (!resolvedToCoords && toResults.length > 0) {
+      resolvedToCoords = { lat: toResults[0].lat, lon: toResults[0].lon };
+    }
+
     const params = new URLSearchParams({
       from,
       to,
-      ...(fromCoords ? { fromLat: fromCoords.lat, fromLon: fromCoords.lon } : {}),
-      ...(toCoords   ? { toLat:   toCoords.lat,   toLon:   toCoords.lon   } : {}),
+      ...(resolvedFromCoords ? { fromLat: resolvedFromCoords.lat, fromLon: resolvedFromCoords.lon } : {}),
+      ...(resolvedToCoords   ? { toLat:   resolvedToCoords.lat,   toLon:   resolvedToCoords.lon   } : {}),
     });
     router.push(`/results?${params.toString()}`);
   };
