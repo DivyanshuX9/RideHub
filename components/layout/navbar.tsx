@@ -96,13 +96,22 @@ export function Navbar() {
                 const Icon = link.icon;
                 return (
                   <Link key={link.href} href={link.href} passHref>
-                    <Button variant={isActive ? 'default' : 'ghost'} size="sm" className="relative">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={cn(
+                        'relative font-medium transition-colors',
+                        isActive
+                          ? 'text-foreground font-semibold bg-primary/10 hover:bg-primary/15'
+                          : 'text-muted-foreground hover:text-foreground'
+                      )}
+                    >
                       <span className="flex items-center">
-                        <Icon className="h-4 w-4 mr-2" />
+                        <Icon className={cn('h-4 w-4 mr-2', isActive ? 'text-primary' : 'text-muted-foreground')} />
                         {link.name}
                       </span>
                       {isActive && (
-                        <motion.div className="absolute bottom-0 left-0 h-0.5 bg-primary w-full" layoutId="navbar-underline" />
+                        <motion.div className="absolute bottom-0 left-0 h-0.5 bg-primary w-full rounded-full" layoutId="navbar-underline" />
                       )}
                     </Button>
                   </Link>
@@ -159,7 +168,7 @@ export function Navbar() {
                 >
                   <Icon className={cn('h-5 w-5', isActive ? 'text-primary' : 'text-muted-foreground')} />
                 </motion.div>
-                <span className={cn('text-[10px] leading-none', isActive ? 'text-primary font-semibold' : 'text-muted-foreground')}>
+                <span className={cn('text-[10px] leading-none', isActive ? 'text-foreground font-semibold' : 'text-muted-foreground')}>
                   {link.name}
                 </span>
               </Link>
