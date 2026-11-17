@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,37 +14,16 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 import { promotions } from '@/lib/mock-data';
-import { fadeInUp } from '@/lib/animations';
 
 export function PromotionsSlider() {
-  const carouselRef = useRef<HTMLDivElement>(null);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     setHydrated(true); // Ensure client-only rendering for dynamic content
-
-    const carouselElement = carouselRef.current;
-    if (carouselElement) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting) {
-            fadeInUp(carouselElement);
-            observer.disconnect();
-          }
-        },
-        { threshold: 0.1 }
-      );
-
-      observer.observe(carouselElement);
-
-      return () => {
-        observer.disconnect();
-      };
-    }
   }, []);
 
   return (
-    <div ref={carouselRef} className="py-4">
+    <div className="py-4">
       <Carousel
         opts={{
           align: 'start',
