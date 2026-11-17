@@ -1,4 +1,5 @@
 import { Navbar } from '@/components/layout/navbar';
+import { CookieConsent } from '@/components/layout/cookie-consent';
 import type { Metadata } from 'next';
 import { ThemeProvider } from 'next-themes';
 import './globals.css';
@@ -118,6 +119,7 @@ export default function RootLayout({
                 {children}
               </Suspense>
             </main>
+            <CookieConsent />
           </Providers>
         </ThemeProvider>
       </body>
