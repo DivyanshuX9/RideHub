@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 
 export function HeroSection() {
@@ -7,11 +8,26 @@ export function HeroSection() {
     <section className="relative h-[70vh] min-h-[600px] overflow-hidden">
       {/* Background with parallax effect */}
       <div 
-        className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40 z-0"
+        className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40 z-0 pointer-events-none"
       >
-        <div className="absolute inset-0 bg-[url('/images/pexels-photo-city.jpeg')] bg-cover bg-center opacity-20 mix-blend-overlay" />
+        <Image
+          src="/images/pexels-photo-city.jpeg"
+          alt="Urban cityscape with modern transportation"
+          fill
+          priority
+          sizes="100vw"
+          quality={75}
+          className="object-cover opacity-20 mix-blend-overlay"
+        />
         {/* City pattern overlay */}
-        <div className="absolute inset-0 bg-[url('/images/pexels-photo-street.jpeg')] bg-cover bg-center opacity-10" />
+        <Image
+          src="/images/pexels-photo-street.jpeg"
+          alt="City street view"
+          fill
+          sizes="100vw"
+          quality={60}
+          className="object-cover opacity-10"
+        />
       </div>
       {/* Content */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 md:px-6 lg:px-8">

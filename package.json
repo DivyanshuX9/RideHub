@@ -8,6 +8,7 @@
     "build:mobile": "cross-env BUILD_TARGET=mobile next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "node --test tests/*.test.mjs",
     "cap:sync": "npm run build:mobile && npx cap sync",
     "cap:android": "npm run cap:sync && npx cap open android",
     "cap:ios": "npm run cap:sync && npx cap open ios"

@@ -1,4 +1,5 @@
 import { Navbar } from '@/components/layout/navbar';
+import { CookieConsent } from '@/components/layout/cookie-consent';
 import type { Metadata } from 'next';
 import { ThemeProvider } from 'next-themes';
 import './globals.css';
@@ -103,13 +104,22 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className={inter.className + ' min-h-screen bg-background antialiased'}>
+      <body className={inter.className + ' min-h-screen bg-background antialiased flex flex-col'}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <Providers>
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:fixed focus:z-[100] focus:p-3 focus:bg-background focus:text-foreground focus:ring-2 focus:ring-primary focus:top-3 focus:left-3 rounded-md shadow-md text-sm font-medium"
+            >
+              Skip to main content
+            </a>
             <Navbar />
-            <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-              {children}
-            </Suspense>
+            <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+                {children}
+              </Suspense>
+            </main>
+            <CookieConsent />
           </Providers>
         </ThemeProvider>
       </body>

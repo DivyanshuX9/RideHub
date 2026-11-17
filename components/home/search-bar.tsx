@@ -14,6 +14,12 @@ import {
     PopoverTrigger
 } from '@/components/ui/popover';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger
+} from '@/components/ui/tooltip';
 import { getRideRecommendations } from '@/lib/mock-data';
 import { RideRecommendation } from '@/types/location';
 import { NominatimResult, reverseGeocode, useNominatim } from '@/hooks/use-nominatim';
@@ -137,11 +143,22 @@ export function SearchBar({
     setShowRecommendations(true);
     if (onSearch) onSearch(from, to);
 
+    // If user typed on PC and pressed Enter without clicking suggestion:
+    let resolvedFromCoords = fromCoords;
+    let resolvedToCoords = toCoords;
+
+    if (!resolvedFromCoords && fromResults.length > 0) {
+      resolvedFromCoords = { lat: fromResults[0].lat, lon: fromResults[0].lon };
+    }
+    if (!resolvedToCoords && toResults.length > 0) {
+      resolvedToCoords = { lat: toResults[0].lat, lon: toResults[0].lon };
+    }
+
     const params = new URLSearchParams({
       from,
       to,
-      ...(fromCoords ? { fromLat: fromCoords.lat, fromLon: fromCoords.lon } : {}),
-      ...(toCoords   ? { toLat:   toCoords.lat,   toLon:   toCoords.lon   } : {}),
+      ...(resolvedFromCoords ? { fromLat: resolvedFromCoords.lat, fromLon: resolvedFromCoords.lon } : {}),
+      ...(resolvedToCoords   ? { toLat:   resolvedToCoords.lat,   toLon:   resolvedToCoords.lon   } : {}),
     });
     router.push(`/results?${params.toString()}`);
   };
@@ -158,7 +175,7 @@ export function SearchBar({
     setToFocused(false);
   };
 
-  const useCurrentLocation = () => {
+  const handleCurrentLocation = () => {
     if (!navigator.geolocation) return;
     setLocatingFrom(true);
     navigator.geolocation.getCurrentPosition(
@@ -198,8 +215,8 @@ export function SearchBar({
 
               {/* FROM */}
               <div className="relative">
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                <div className="relative flex items-center">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
                   <Input
                     placeholder="From where?"
                     className="pl-10 pr-10"
@@ -208,14 +225,32 @@ export function SearchBar({
                     onFocus={() => setFromFocused(true)}
                     onBlur={() => setTimeout(() => setFromFocused(false), 150)}
                   />
-                  <Button
-                    type="button" variant="ghost" size="icon"
-                    className="absolute right-1 top-1"
-                    onClick={useCurrentLocation}
-                    disabled={locatingFrom}
-                  >
-                    {locatingFrom ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
-                  </Button>
+                  <TooltipProvider delayDuration={200}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Current location"
+                          title="Current location"
+                          className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground flex items-center justify-center rounded-md"
+                          onClick={handleCurrentLocation}
+                          disabled={locatingFrom}
+                        >
+                          {locatingFrom ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                          ) : (
+                            <LocateFixed className="h-4 w-4" />
+                          )}
+                          <span className="sr-only">Current location</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="text-xs font-medium">
+                        Current location
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
                 {fromFocused && (
                   <AnimatePresence>
@@ -228,7 +263,7 @@ export function SearchBar({
                       <div className="p-1 max-h-56 overflow-y-auto">
                         <div
                           className="px-3 py-2 text-sm rounded-md hover:bg-accent cursor-pointer flex items-center gap-2 border-b border-border mb-1"
-                          onMouseDown={(e) => { e.preventDefault(); useCurrentLocation(); setFromFocused(false); }}
+                          onMouseDown={(e) => { e.preventDefault(); handleCurrentLocation(); setFromFocused(false); }}
                         >
                           {locatingFrom ? <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" /> : <LocateFixed className="h-3.5 w-3.5 text-primary" />}
                           <span className="font-medium text-primary">My location</span>
@@ -261,8 +296,8 @@ export function SearchBar({
 
               {/* TO */}
               <div className="relative">
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                <div className="relative flex items-center">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
                   <Input
                     placeholder="Where to?"
                     className="pl-10"
